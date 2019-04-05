@@ -75,7 +75,7 @@ class FreeTile {
 class ObstacleTile {
   constructor() {}
   /**
-   * Indicates weather a tile can be entered (stepped on) by an Actor.
+   * Indicates whether a tile can be entered (stepped on) by an Actor.
    * @returns {boolean} - true if an Actor can enter, false otherwise.
    */
   canEnter() {
