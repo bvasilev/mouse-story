@@ -11,6 +11,9 @@ class Model {
    * @returns {boolean} - true if read was successful, false otherwise
    */
   readFromFile(filePath) {
+    if (filePath.slice(-5) != ".json") {
+      throw new Error("Wrong file type!");
+    }
     throw new Error("Function not implemented!");
   }
   /**
