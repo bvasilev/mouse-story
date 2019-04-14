@@ -1,0 +1,10 @@
+{
+  "actorTypes": {
+    "Normal Mouse": "House",
+    "Cheese": "N/A",
+    "House": "N/A"
+  },
+  "tileset": [".", "#"],
+  "inaccessibleTiles": ["#"],
+  "itemTypes": ["Cheese", "House", "Obstacle"]
+}
