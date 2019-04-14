@@ -44,20 +44,147 @@ class Model {
    * @return{int}
    */
   get cntCols() {
-    return this.tiles[0].length;
+    if (this._level != null) return this._level.grid_width;
+    else return 0;
   }
 
   /**
    * Reads a level from a file.
    * TODO: Specify format.
    * @param {string} filePath - path to the .json level file
-   * @returns {boolean} - true if read was successful, false otherwise
+   * @returns {boolean} - false if something went wrong,
+   * e.g. bad filepath, bad file, etc. true otherwise
    */
-  readFromFile(filePath) {
+  readLevelFromFile(filePath) {
     if (filePath.slice(-5) != ".json") {
       throw new Error("Wrong file type!");
     }
-    throw new Error("Function not implemented!");
+
+    let fileData = require(filePath); // load the file
+    if (!_validateLevelFile(fileData)) {
+      return false;
+    }
+
+    this._grid = _parseGrid(fileData.grid);
+    this._actors = _parseActors(fileData.actors);
+    this._items = _parseItems(fileData.items);
+    return true;
+  }
+  /**
+   * Creates a grid of Tiles from a list of strings, which specify
+   * a level.
+   * Precondition: The list must contain only valid characters.
+   * @param {[string]} grid
+   */
+  _parseGrid(grid) {
+    function charToTile(c) {
+      switch (c) {
+        case ".":
+          return new FreeTile();
+        case "#":
+          return new ObstacleTile();
+        default:
+          throw new Error("Unexpected tile");
+      }
+    }
+
+    return grid.map(row => row.split("").map(charToTile));
+  }
+
+  /**
+   * Sets up the list of actors from a given list.
+   * @param {[{type: string, x: int, y:int}]} actors
+   */
+  _parseActors(actors) {
+    for (actor in actors) {
+      const type = actor.type;
+      const follows = this._meta.actorTypes[type];
+      const position = { row: actor.x, col: actor.y };
+      this._actors.push(new FollowingActor(type, follows, this, position));
+    }
+  }
+
+  /**
+   * Fills the list of items from the given string.
+   * @param {[string]} items
+   */
+  _parseItems(items) {
+    this._items = items;
+  }
+
+  /**
+   * Checks a level file for any errors (e.g. "width"
+   * and "height" not mathcing the grid dimensions,
+   * only valid symbols are used, etc.).
+   * @param {Object} fileData - the loaded .json data
+   * @returns {boolean} - true if it is a valid level, false otherwise
+   * TODO: Possibly split this into multiple functions
+   */
+  _validateLevelFile(fileData) {
+    // Has all necessary attributes
+    if (
+      !(
+        "grid" in fileData &&
+        "grid_width" in fileData &&
+        "grid_height" in fileData &&
+        "actors" in fileData &&
+        "items" in fileData
+      )
+    ) {
+      return false;
+    }
+    if (fileData.grid.length == 0) return false;
+    if (fileData.grid[0] == 0) return false;
+    if (
+      // Not every row has equal length
+      !fileData.grid.every(element => element.length == fileData.grid[0].length)
+    ) {
+      return false;
+    }
+
+    // Check that specified dimensions match actual dimensions
+    if (
+      fileData.grid_width != fileData.grid[0].length ||
+      fileData.grid_height != fileData.grid.length
+    ) {
+      return false;
+    }
+
+    // Check that all tiles are valid
+    const tileset = this._meta.tileset;
+    for (const row in fileData.grid) {
+      for (const cell in row) {
+        if (!(cell in tileset)) return false;
+      }
+    }
+
+    // Check that all actors are valid types and on accessible tiles
+    const inaccessibleTiles = this._meta.inaccessibleTiles;
+    const actorTypes = this._meta.actorTypes;
+    for (const actor in fileData.grid.actors) {
+      if (!(actor.type in actorTypes)) return false; // Invalid type
+      if (
+        // Out of level bounds
+        actor.x < 0 ||
+        actor.x >= fileData.grid_width ||
+        actor.y < 0 ||
+        actor.y >= fileData.grid_height
+      ) {
+        return false;
+      }
+      if (fileData.grid[actor.x][actor.y] in inaccessibleTiles) {
+        return false;
+      }
+    }
+
+    // Check that all items are valid types
+    const itemTypes = this._meta.items;
+    for (const item in fileData.grid.items) {
+      if (!(item in itemTypes)) return false;
+    }
+
+    // No errors encountered
+    return true;
   }
 
   /**
