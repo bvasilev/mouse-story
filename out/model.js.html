@@ -32,56 +32,190 @@
  */
 class Model {
   constructor() {
-    this.tiles = []
-    this.actors = []
+    this._meta = require("./levels/metadata.json");
+    this._grid = [];
+    this._actors = [];
+    this._items = [];
+    this._level = null;
   }
 
   /**
    * Returns the actors
-   * @return{Actor[]}
+   * @return {Actor[]}
    */
-  get actors(){
-    return actors
+  get actors() {
+    return this._actors;
   }
 
   /**
    * Gets an actor by name
    * @param {string} name - The name
-   * @return {actor} 
+   * @return {actor}
    * @throws if the actor doesn't exist
    */
-  getByName(name){
-    for(let a of this.actors)
-      if(a.name == name)
-        return a
-    throw new Error("tried to get non-existent actor with name " + name)
-    return null
+  getByName(name) {
+    for (let a of this._actors) if (a.name == name) return a;
+    throw new Error("Tried to get non-existent actor with name " + name);
   }
 
   /**
    * Returns the number of rows
    * @return{int}
    */
-  get cntRows(){
-    return this.tiles.length
+  get cntRows() {
+    if (this._level != null) return this._level.grid_height;
+    else return 0;
   }
 
   /**
    * Returns the number of columns
    * @return{int}
    */
-  get cntCols(){
-    return this.tiles[0].length
+  get cntCols() {
+    if (this._level != null) return this._level.grid_width;
+    else return 0;
   }
 
   /**
    * Reads a level from a file.
    * TODO: Specify format.
    * @param {string} filePath - path to the .json level file
-   * @returns {boolean} - true if read was successful, false otherwise
+   * @returns {boolean} - false if something went wrong,
+   * e.g. bad filepath, bad file, etc. true otherwise
    */
-  readFromFile(filePath) {
-    throw new Error("Function not implemented!")
+  readLevelFromFile(filePath) {
+    if (filePath.slice(-5) != ".json") {
+      throw new Error("Wrong file type!");
+    }
+
+    let fileData = require(filePath); // load the file
+    if (!_validateLevelFile(fileData)) {
+      return false;
+    }
+
+    this._grid = _parseGrid(fileData.grid);
+    this._actors = _parseActors(fileData.actors);
+    this._items = _parseItems(fileData.items);
+    return true;
+  }
+  /**
+   * Creates a grid of Tiles from a list of strings, which specify
+   * a level.
+   * Precondition: The list must contain only valid characters.
+   * @param {string[]} grid
+   */
+  _parseGrid(grid) {
+    function charToTile(c) {
+      switch (c) {
+        case ".":
+          return new FreeTile();
+        case "#":
+          return new ObstacleTile();
+        default:
+          throw new Error("Unexpected tile");
+      }
+    }
+
+    return grid.map(row => row.split("").map(charToTile));
+  }
+
+  /**
+   * Sets up the list of actors from a given list.
+   * @param {Object[]} actors - the list of actors
+   * @param {string} actors.type - the type of the actor
+   * @param {int} actors.x - the x coordinate of the actor
+   * @param {int} actors.y - the y coordiante of the actor
+   */
+  _parseActors(actors) {
+    for (actor in actors) {
+      const type = actor.type;
+      const follows = this._meta.actorTypes[type];
+      const position = { row: actor.x, col: actor.y };
+      this._actors.push(new FollowingActor(type, follows, this, position));
+    }
+  }
+
+  /**
+   * Fills the list of items from the given string.
+   * @param {string[]} items
+   */
+  _parseItems(items) {
+    this._items = items;
+  }
+
+  /**
+   * Checks a level file for any errors (e.g. "width"
+   * and "height" not mathcing the grid dimensions,
+   * only valid symbols are used, etc.).
+   * @param {Object} fileData - the loaded .json data
+   * @returns {boolean} - true if it is a valid level, false otherwise
+   * TODO: Possibly split this into multiple functions
+   */
+  _validateLevelFile(fileData) {
+    // Has all necessary attributes
+    if (
+      !(
+        "grid" in fileData &amp;&amp;
+        "grid_width" in fileData &amp;&amp;
+        "grid_height" in fileData &amp;&amp;
+        "actors" in fileData &amp;&amp;
+        "items" in fileData
+      )
+    ) {
+      return false;
+    }
+    if (fileData.grid.length == 0) return false;
+    if (fileData.grid[0] == 0) return false;
+    if (
+      // Not every row has equal length
+      !fileData.grid.every(element => element.length == fileData.grid[0].length)
+    ) {
+      return false;
+    }
+
+    // Check that specified dimensions match actual dimensions
+    if (
+      fileData.grid_width != fileData.grid[0].length ||
+      fileData.grid_height != fileData.grid.length
+    ) {
+      return false;
+    }
+
+    // Check that all tiles are valid
+    const tileset = this._meta.tileset;
+    for (const row in fileData.grid) {
+      for (const cell in row) {
+        if (!(cell in tileset)) return false;
+      }
+    }
+
+    // Check that all actors are valid types and on accessible tiles
+    const inaccessibleTiles = this._meta.inaccessibleTiles;
+    const actorTypes = this._meta.actorTypes;
+    for (const actor in fileData.grid.actors) {
+      if (!(actor.type in actorTypes)) return false; // Invalid type
+      if (
+        // Out of level bounds
+        actor.x &lt; 0 ||
+        actor.x >= fileData.grid_width ||
+        actor.y &lt; 0 ||
+        actor.y >= fileData.grid_height
+      ) {
+        return false;
+      }
+      if (fileData.grid[actor.x][actor.y] in inaccessibleTiles) {
+        return false;
+      }
+    }
+
+    // Check that all items are valid types
+    const itemTypes = this._meta.items;
+    for (const item in fileData.grid.items) {
+      if (!(item in itemTypes)) return false;
+    }
+
+    // No errors encountered
+    return true;
   }
 
   /**
@@ -92,10 +226,12 @@ class Model {
    * @throws {Error} - if location is outside of grid.
    */
   queryTile(x, y) {
-    if(x &lt; 0 || y &lt; 0 || x >= this.cntRows || y >= this.cntCols)
-      throw new Error("queried tile position outside of array: (" + x + "," + y + ")")
+    if (x &lt; 0 || y &lt; 0 || x >= this.cntRows || y >= this.cntCols)
+      throw new Error(
+        "Queried tile position outside of array: (" + x + "," + y + ")"
+      );
 
-    return tiles[x][y]
+    return this._grid[x][y];
   }
 
   /**
@@ -106,10 +242,9 @@ class Model {
    * @returns {boolean} - true if modification was successful, false otherwise
    */
   modifyTile(x, y, newTile) {
-    if(x &lt; 0 || y &lt; 0 || x >= this.cntRows || y >= this.cntCols)
-      return false;
+    if (x &lt; 0 || y &lt; 0 || x >= this.cntRows || y >= this.cntCols) return false;
 
-    throw new Error("Function not implemented!")
+    throw new Error("Function not implemented!");
   }
   /**
    * Run a single simulation step.
@@ -122,20 +257,18 @@ class Model {
    */
   runStep() {
     // 1. check if terminate
-    for(a of actors)
-      if(a.shouldTerminate)
-        return true;
+    for (a of this._actors) if (a.shouldTerminate) return true;
 
     // 2. get movements
-    for(a of actors){
-      var target = a.shouldMove
-      a.position = target
-      tiles[target.row][target.column].onEnter()
+    for (a of this._actors) {
+      var target = a.shouldMove;
+      a.position = target;
+      this._grid[target.row][target.column].onEnter();
     }
-    
+
     // 3. put further needed actions here
-    
-    return false
+
+    return false;
   }
 }
 
@@ -148,119 +281,118 @@ class Model {
  * specifying that the actor
  * follow a non-existent other actor.
  */
-class FollowingActor{
+class FollowingActor {
   /**
    * Constructs an actor with name n
    * that tries to follow any actor
-   * with name f. Upon reaching   
+   * with name f. Upon reaching
    * The actor exists
    * within model m, at position p
    */
-  constructor(n, f, m, p){
-    this.name = n
-    this.follows = f
-    this.position = p
+  constructor(n, f, m, p) {
+    this._name = n;
+    this._follows = f;
+    this._model = m;
+    this._position = p;
   }
 
   /**
    * Returns the name of an actor. This will be used
    * to coordinate actors that follow after one another
    */
-  get name(){
-    return this.name
+  get name() {
+    return this._name;
   }
 
   /**
    * Returns position of actor
    */
-  get position(){
-    return this.position
+  get position() {
+    return this._position;
   }
 
   /**
    * Sets position of actor
    */
-  set position(p){
-    this.position = p
+  set position(p) {
+    this._position = p;
   }
 
   /**
    * Returns if the game ought to terminate
    */
-  get shouldTerminate(){
-    var target = this.model.getByName(this.follows)
-    return target.position == this.position
+  get shouldTerminate() {
+    var target = this.model.getByName(this._follows);
+    return target.position === this.position;
   }
 
   /**
    * Returns the place where we think we should move
    */
-  get shouldMove(){
-    var dist = new Array(model.cntRows)
-    for(let a of dist)
-      a = new Array(model.cntCols)
+  get shouldMove() {
+    var dist = new Array(model.cntRows);
+    for (let a of dist) a = new Array(model.cntCols);
 
-    for(let a of dist)
-      for(let b of a)
-        b = 1000000000
+    for (let a of dist) for (let b of a) b = 1000000000;
 
     // dist[i][j] = distance from my target
     // I will move so as to minimise distance
 
-    var target = this.model.getByName(this.follows)
-    
-    var queue = [target]
-    while(queue.length > 0){
-      var current = queue.shift;
-      var current_dist = dist[current.row][current.column]
+    var target = this.model.getByName(this._follows);
 
-      for(let neighbour of current.getNeighbours(this.model)){
-        if(dist[neighbour.row][neighbour.column] > current_dist + 1){
-          dist[neighbour.row][neighbour.column] = current_dist + 1
-          queue.push(neighbour)
+    var queue = [target];
+    while (queue.length > 0) {
+      var current = queue.shift;
+      var current_dist = dist[current.row][current.column];
+
+      for (let neighbour of current.getNeighbours(this.model)) {
+        if (dist[neighbour.row][neighbour.column] > current_dist + 1) {
+          dist[neighbour.row][neighbour.column] = current_dist + 1;
+          queue.push(neighbour);
         }
       }
     }
 
-    var my_neighbours = this.position.getNeighbours(this.model)
+    var my_neighbours = this.position.getNeighbours(this._model);
 
-    if(my_neighbours.length == 0)
-      return this.position
+    if (my_neighbours.length == 0) return this.position;
     else
-      return my_neighbours.reduce(function(prev, curr){
-        return dist[prev.row][prev.column] &lt; dist[curr.row][curr.column] ? prev : curr
-      })
+      return my_neighbours.reduce(function(prev, curr) {
+        return dist[prev.row][prev.column] &lt; dist[curr.row][curr.column]
+          ? prev
+          : curr;
+      });
   }
 }
 
 /**
  * Represents an immutable point the tile grid
  */
-class Point{
+class Point {
   /**
    * Constructs a point
    * @param {int} [row=0] - the row of the point
    * @param {int} [col=0] - the column of the point
    */
-  constructor(row = 0, col = 0){
-    var row = row
-    var col = col
+  constructor(row = 0, col = 0) {
+    var _row = row;
+    var _col = col;
   }
 
   /**
    * Gets the row of the point
    * @returns {int}
    */
-  get row(){
-    return this.row
+  get row() {
+    return this._row;
   }
 
   /**
    * Gets the column of the point
    * @returns {int}
    */
-  get column(){
-    return this.col
+  get column() {
+    return this._col;
   }
 
   /**
@@ -269,8 +401,8 @@ class Point{
    * @param {int} dcol - The column offset
    * @returns {Point}
    */
-  makeAtOffset(dlin, dcol){
-    return new Point(this.row + dlin, this.col + dcol)
+  makeAtOffset(dlin, dcol) {
+    return new Point(this.row + dlin, this.col + dcol);
   }
 
   /**
@@ -278,12 +410,14 @@ class Point{
    * @param {model} m - The model in which the computation takes place
    * @returns {boolean}
    */
-  isWalkable(m){
-    return m.queryTile(this.row, this.col).canEnter
-      &amp;&amp; this.row >= 0
-      &amp;&amp; this.col >= 0
-      &amp;&amp; this.row &lt; m.cntRows
-      &amp;&amp; this.col &lt; m.cntCols
+  isWalkable(m) {
+    return (
+      this.row >= 0 &amp;&amp;
+      this.col >= 0 &amp;&amp;
+      this.row &lt; m.cntRows &amp;&amp;
+      this.col &lt; m.cntCols &amp;&amp;
+      m.queryTile(this.row, this.col).canEnter
+    );
   }
 
   /**
@@ -291,10 +425,12 @@ class Point{
    * @param {model} m - The model in which the computation takes place
    * @returns {Point[]}
    */
-  getNeighbours(m){
-    var dxs = [0, -1, 0, 1]
-    var dys = [1, 0, -1, 0]
-    return dxs.map((x, i) => new this.makeAtOffset(x, dys[i])).filter(x => x.isWalkable(m))
+  getNeighbours(m) {
+    var dxs = [0, -1, 0, 1];
+    var dys = [1, 0, -1, 0];
+    return dxs
+      .map((x, i) => new this.makeAtOffset(x, dys[i]))
+      .filter(x => x.isWalkable(m));
   }
 }
 
@@ -302,9 +438,9 @@ class Point{
  * Represents a free tile in the level grid.
  * TODO: draw
  */
-class FreeTile extends GenericTile{
+class FreeTile {
   constructor() {
-    this.name = "this doesn't matter"
+    this._name = "";
   }
 
   /**
@@ -312,7 +448,7 @@ class FreeTile extends GenericTile{
    * @return {boolean}
    */
   canEnter() {
-    return true
+    return true;
   }
 
   /**
@@ -321,25 +457,24 @@ class FreeTile extends GenericTile{
    * tiles.
    * @return {string}
    */
-  get name(){
-    return this.name
+  get name() {
+    return this._name;
   }
 
   /**
    * The action we take when we enter. Here
    * this is nothing
    */
-  onEnter(){
-  }
+  onEnter() {}
 }
 
 /**
  * Represents an impassable tile in the level grid.
  * TODO: draw
  */
-class ObstacleTile extends GenericTile{
+class ObstacleTile {
   constructor() {
-    this.name = "This also doesn't matter"
+    this._name = "";
   }
 
   /**
@@ -347,24 +482,29 @@ class ObstacleTile extends GenericTile{
    * @return {boolean}
    */
   canEnter() {
-    return false
+    return false;
   }
 
   /**
    * Returns the name of the tile.
    * @return {string}
    */
-  get name(){
-    return this.name
+  get name() {
+    return this._name;
   }
 
   /**
    * The action we take when we enter. Here
    * this is nothing
    */
-  onEnter(){
-  }
-} 
+  onEnter() {}
+}
+
+const m = new Model();
+let fileData = require("./levels/level1.json");
+console.log(m._validateLevelFile(fileData));
+console.log(m._parseGrid(fileData.grid));
+//console.log("hi");
 </code></pre>
         </article>
     </section>
@@ -381,7 +521,7 @@ class ObstacleTile extends GenericTile{
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Apr 11 2019 13:30:52 GMT+0300 (Eastern European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sun Apr 14 2019 14:47:29 GMT+0300 (Eastern European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>
