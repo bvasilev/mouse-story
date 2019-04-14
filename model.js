@@ -4,16 +4,19 @@
  */
 class Model {
   constructor() {
-    this.tiles = [];
-    this.actors = [];
+    this._meta = require("./levels/metadata.json");
+    this._grid = [];
+    this._actors = [];
+    this._items = [];
+    this._level = null;
   }
 
   /**
    * Returns the actors
-   * @return{Actor[]}
+   * @return {[Actor]}
    */
   get actors() {
-    return actors;
+    return this._actors;
   }
 
   /**
@@ -23,9 +26,8 @@ class Model {
    * @throws if the actor doesn't exist
    */
   getByName(name) {
-    for (let a of this.actors) if (a.name == name) return a;
-    throw new Error("tried to get non-existent actor with name " + name);
-    return null;
+    for (let a of this._actors) if (a.name == name) return a;
+    throw new Error("Tried to get non-existent actor with name " + name);
   }
 
   /**
@@ -33,7 +35,8 @@ class Model {
    * @return{int}
    */
   get cntRows() {
-    return this.tiles.length;
+    if (this._level != null) return this._level.grid_height;
+    else return 0;
   }
 
   /**
@@ -67,10 +70,10 @@ class Model {
   queryTile(x, y) {
     if (x < 0 || y < 0 || x >= this.cntRows || y >= this.cntCols)
       throw new Error(
-        "queried tile position outside of array: (" + x + "," + y + ")"
+        "Queried tile position outside of array: (" + x + "," + y + ")"
       );
 
-    return tiles[x][y];
+    return this._grid[x][y];
   }
 
   /**
@@ -96,13 +99,13 @@ class Model {
    */
   runStep() {
     // 1. check if terminate
-    for (a of actors) if (a.shouldTerminate) return true;
+    for (a of this._actors) if (a.shouldTerminate) return true;
 
     // 2. get movements
-    for (a of actors) {
+    for (a of this._actors) {
       var target = a.shouldMove;
       a.position = target;
-      tiles[target.row][target.column].onEnter();
+      this._grid[target.row][target.column].onEnter();
     }
 
     // 3. put further needed actions here
@@ -129,9 +132,10 @@ class FollowingActor {
    * within model m, at position p
    */
   constructor(n, f, m, p) {
-    this.name = n;
-    this.follows = f;
-    this.position = p;
+    this._name = n;
+    this._follows = f;
+    this._model = m;
+    this._position = p;
   }
 
   /**
@@ -139,29 +143,29 @@ class FollowingActor {
    * to coordinate actors that follow after one another
    */
   get name() {
-    return this.name;
+    return this._name;
   }
 
   /**
    * Returns position of actor
    */
   get position() {
-    return this.position;
+    return this._position;
   }
 
   /**
    * Sets position of actor
    */
   set position(p) {
-    this.position = p;
+    this._position = p;
   }
 
   /**
    * Returns if the game ought to terminate
    */
   get shouldTerminate() {
-    var target = this.model.getByName(this.follows);
-    return target.position == this.position;
+    var target = this.model.getByName(this._follows);
+    return target.position === this.position;
   }
 
   /**
@@ -176,7 +180,7 @@ class FollowingActor {
     // dist[i][j] = distance from my target
     // I will move so as to minimise distance
 
-    var target = this.model.getByName(this.follows);
+    var target = this.model.getByName(this._follows);
 
     var queue = [target];
     while (queue.length > 0) {
@@ -191,7 +195,7 @@ class FollowingActor {
       }
     }
 
-    var my_neighbours = this.position.getNeighbours(this.model);
+    var my_neighbours = this.position.getNeighbours(this._model);
 
     if (my_neighbours.length == 0) return this.position;
     else
@@ -213,8 +217,8 @@ class Point {
    * @param {int} [col=0] - the column of the point
    */
   constructor(row = 0, col = 0) {
-    var row = row;
-    var col = col;
+    var _row = row;
+    var _col = col;
   }
 
   /**
@@ -222,7 +226,7 @@ class Point {
    * @returns {int}
    */
   get row() {
-    return this.row;
+    return this._row;
   }
 
   /**
@@ -230,7 +234,7 @@ class Point {
    * @returns {int}
    */
   get column() {
-    return this.col;
+    return this._col;
   }
 
   /**
@@ -250,11 +254,11 @@ class Point {
    */
   isWalkable(m) {
     return (
-      m.queryTile(this.row, this.col).canEnter &&
       this.row >= 0 &&
       this.col >= 0 &&
       this.row < m.cntRows &&
-      this.col < m.cntCols
+      this.col < m.cntCols &&
+      m.queryTile(this.row, this.col).canEnter
     );
   }
 
@@ -276,9 +280,9 @@ class Point {
  * Represents a free tile in the level grid.
  * TODO: draw
  */
-class FreeTile extends GenericTile {
+class FreeTile {
   constructor() {
-    this.name = "this doesn't matter";
+    this._name = "";
   }
 
   /**
@@ -296,7 +300,7 @@ class FreeTile extends GenericTile {
    * @return {string}
    */
   get name() {
-    return this.name;
+    return this._name;
   }
 
   /**
@@ -310,9 +314,9 @@ class FreeTile extends GenericTile {
  * Represents an impassable tile in the level grid.
  * TODO: draw
  */
-class ObstacleTile extends GenericTile {
+class ObstacleTile {
   constructor() {
-    this.name = "This also doesn't matter";
+    this._name = "";
   }
 
   /**
@@ -328,7 +332,7 @@ class ObstacleTile extends GenericTile {
    * @return {string}
    */
   get name() {
-    return this.name;
+    return this._name;
   }
 
   /**
