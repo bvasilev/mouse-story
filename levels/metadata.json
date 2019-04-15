@@ -1,10 +1,13 @@
 {
   "actorTypes": {
     "Normal Mouse": "House",
+    "Blue Mouse": "Blue House",
     "Cheese": "N/A",
-    "House": "N/A"
+    "Blue Cheese": "N/A",
+    "House": "N/A",
+    "Blue House": "N/A"
   },
   "tileset": [".", "#"],
   "inaccessibleTiles": ["#"],
-  "itemTypes": ["Cheese", "House", "Obstacle"]
+  "itemTypes": ["Cheese", "Blue Cheese", "House", "Blue House", "Obstacle"]
 }
