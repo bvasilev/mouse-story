@@ -268,6 +268,33 @@ class FollowingActor {
     this._position = p;
   }
 
+  /** Get path to texture file.
+   * @returns {string} - path to texture file
+   */
+  get texturePath() {
+    const pathPrefix = "/assets/img/" + this.textureFile();
+  }
+
+  /** Get texture filename.
+   * @returns {string} - texture filename
+   */
+  get textureFile() {
+    switch (this._name) {
+      case "Normal Mouse":
+        return "normal_mouse.png";
+      case "Cheese":
+        return "cheese.png";
+      case "House":
+        return "house.png";
+      case "Blue Mouse":
+        return "blue_mouse.png";
+      case "Blue Cheese":
+        return "blue_cheese.png";
+      default:
+        throw Error("Actor type " + this._name + " has no texture file!");
+    }
+  }
+
   /**
    * Returns the name of an actor. This will be used
    * to coordinate actors that follow after one another
@@ -408,11 +435,17 @@ class Point {
 
 /**
  * Represents a free tile in the level grid.
- * TODO: draw
  */
 class FreeTile {
   constructor() {
     this._name = "";
+  }
+
+  /** Get path to texture file.
+   * @returns {string} - path to texture file
+   */
+  get texturePath() {
+    return "/assets/img/free_tile.png";
   }
 
   /**
@@ -442,11 +475,17 @@ class FreeTile {
 
 /**
  * Represents an impassable tile in the level grid.
- * TODO: draw
  */
 class ObstacleTile {
   constructor() {
     this._name = "";
+  }
+
+  /** Get path to texture file.
+   * @returns {string} - path to texture file
+   */
+  get texturePath() {
+    return "/assets/img/obstacle_tile.png";
   }
 
   /**
