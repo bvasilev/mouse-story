@@ -13,7 +13,7 @@ class Model {
 
   /**
    * Returns the actors
-   * @return {[Actor]}
+   * @return {Actor[]}
    */
   get actors() {
     return this._actors;
@@ -61,20 +61,20 @@ class Model {
     }
 
     let fileData = require(filePath); // load the file
-    if (!_validateLevelFile(fileData)) {
+    if (!this._validateLevelFile(fileData)) {
       return false;
     }
 
-    this._grid = _parseGrid(fileData.grid);
-    this._actors = _parseActors(fileData.actors);
-    this._items = _parseItems(fileData.items);
+    this._grid = this._parseGrid(fileData.grid);
+    this._actors = this._parseActors(fileData.actors);
+    this._items = this._parseItems(fileData.items);
     return true;
   }
   /**
    * Creates a grid of Tiles from a list of strings, which specify
    * a level.
    * Precondition: The list must contain only valid characters.
-   * @param {[string]} grid
+   * @param {string[]} grid
    */
   _parseGrid(grid) {
     function charToTile(c) {
@@ -93,10 +93,13 @@ class Model {
 
   /**
    * Sets up the list of actors from a given list.
-   * @param {[{type: string, x: int, y:int}]} actors
+   * @param {Object[]} actors - the list of actors
+   * @param {string} actors.type - the type of the actor
+   * @param {int} actors.x - the x coordinate of the actor
+   * @param {int} actors.y - the y coordiante of the actor
    */
   _parseActors(actors) {
-    for (actor in actors) {
+    for (const actor in actors) {
       const type = actor.type;
       const follows = this._meta.actorTypes[type];
       const position = { row: actor.x, col: actor.y };
@@ -106,7 +109,7 @@ class Model {
 
   /**
    * Fills the list of items from the given string.
-   * @param {[string]} items
+   * @param {string[]} items
    */
   _parseItems(items) {
     this._items = items;
