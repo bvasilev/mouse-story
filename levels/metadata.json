@@ -11,5 +11,5 @@
   },
   "tileset": [".", "#"],
   "inaccessibleTiles": ["#"],
-  "itemTypes": ["Cheese", "Blue Cheese", "House", "Blue House", "Yarn", "Obstacle"]
+  "itemTypes": ["Cheese", "Blue Cheese", "House", "Blue House", "Yarn", "#"]
 }

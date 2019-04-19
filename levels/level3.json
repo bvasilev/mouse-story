@@ -26,5 +26,5 @@
       "y": 2
     }
   ],
-  "items": ["Obstacle", "Obstacle", "Obstacle"]
+  "items": ["#", "#", "#"]
 }
