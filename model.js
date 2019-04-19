@@ -5,10 +5,11 @@
 class Model {
   constructor() {
     this._meta = require("./levels/metadata.json");
-    this._grid = [];
-    this._actors = [];
-    this._items = [];
-    this._level = null;
+    this._grid = []; // The level grid - a matrix
+    this._actors = []; // Actors on the grid, specified by type and coordinates
+    this._items = []; // Items the player has, specified by type (string)
+    this._placedItems = []; // Items the player has placed - given by type and coordinates
+    this._level = null; // The level data loaded directly from a file
   }
 
   /**
