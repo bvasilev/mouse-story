@@ -226,16 +226,122 @@ class Model {
 
   /**
    * Modifies a tile
-   * @param {int} x - the x coordinate in the level grid
-   * @param {int} y - the y coordiante in the level grid
-   * @param {Tile} newTile - the new value of the Tile
-   * @returns {boolean} - true if modification was successful, false otherwise
+   * @param {int} x - the row in the level grid
+   * @param {int} y - the column in the level grid
+   * @param {string} newTile - the type of the Tile - a one character string
    */
-  modifyTile(x, y, newTile) {
-    if (x < 0 || y < 0 || x >= this.cntRows || y >= this.cntCols) return false;
+  _modifyTile(x, y, newTile) {
+    if (x < 0 || y < 0 || x >= this.cntRows || y >= this.cntCols)
+      throw Error("Tried to modify Tile outside of grid!");
 
-    throw new Error("Function not implemented!");
+    this._grid[x][y] = this._charToTile(newTile);
   }
+
+  /**
+   * Place an item on the grid
+   * @param {int} x - the row in the level grid
+   * @param {int} y - the column in the level grid
+   * @param {string} item - the type of the item
+   * @returns {boolean} - true if item was places successfully, false otherwise
+   * @throws {Error} - If no level is loaded or the item is not in the player's inventory
+   */
+  placeItem(x, y, item) {
+    if (this._level == null)
+      throw new Error("Can't place items without a level loaded!");
+    if (!(item in this._items))
+      throw new Error("Tried to place non-existing item!");
+
+    if (!this._canPlaceItemHere(x, y, item)) return false;
+
+    this._placedItems.push({ type: item, x: x, y: y }); // Put in _placedItems
+    this._items.splice(this._items.indexOf(item), 1); // Remove from inventory
+
+    return true;
+  }
+
+  /**
+   * Remove an item from the grid at position (x,y) if there is one there
+   * @param {int} x - row
+   * @param {int} y - column
+   * @returns {boolean} - true if there was an item and it was removed, false otherwise
+   */
+  removeItem(x, y) {
+    const index = this._getIndexOf(this._placedItems, x, y);
+    if (index == -1) return false; // Item not found
+    const item = this._placedItems[index].type;
+    this._placedItems.splice(index, 1); // Remove item from placed
+    this._items.push(item); // Put back in inventory
+    return true;
+  }
+
+  /**
+   * Return weather item can be placed at location (x,y) on the grid
+   * @param {int} x - row of grid
+   * @param {int} y - column of grid
+   * @param {string} item - item type
+   */
+  _canPlaceItemHere(x, y, item) {
+    // Can't place item outside of grid
+    if (x < 0 || x >= this.cntRows || y < 0 || y >= this.cntCols) return false;
+    // Can't place item on an inaccessible tile
+    if (this._grid[x][y] in this._meta.inaccessibleTiles) return false;
+    // Can't place item if there is an actor on that tile currenly
+    if (this._existsAtLocation(this.actors, x, y)) return false;
+    // Can't place item if there is another item already there
+    if (this._existsAtLocation(this._placedItems, x, y)) return false;
+
+    // All is good
+    return true;
+  }
+
+  /**
+   * Given an array of objects with coordinates and two coordiante points
+   * return weather there is an object in array with coordinates (x,y)
+   * @param {Object[]} array - array of objects
+   * @param {int} array.x - x coordiante of object
+   * @param {int} array.y - y coordiante of object
+   * @param {int} x - x coordinate to compare with
+   * @param {int} y - y coordiante to compare with
+   */
+  _existsAtLocation(array, x, y) {
+    for (const element in array) {
+      if (element.x === x && element.y === y) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Given an array of objects with coordinates and two coordiante points
+   * return the index of the first bject in array with coordinates (x,y) or -1
+   * if there is none
+   * @param {Object[]} array - array of objects
+   * @param {int} array.x - x coordiante of object
+   * @param {int} array.y - y coordiante of object
+   * @param {int} x - x coordinate to compare with
+   * @param {int} y - y coordiante to compare with
+   */
+  _getIndexOf(array, x, y) {
+    for (var i = 0; i < this._placedItems.length; i++) {
+      if (array[i].x == x && array[y].y == y) return i;
+    }
+    return -1;
+  }
+
+  /**
+   * Once all items are placed - put them on the game grid.
+   * @throws {Error} - if no level is loaded
+   */
+  startGame() {
+    if (this._level == null)
+      throw new Error("Can't start game without a level loaded!");
+    for (const item in this._placedItems) {
+      if (item.type in this._meta.tileset)
+        this._modifyTile(item.x, item.y, item.type);
+      else if (item.type in this._meta.actorTypes) this._addActor(item);
+      else throw new Error("Unexpected item type");
+    }
+  }
+
   /**
    * Run a single simulation step.
    * This means:
