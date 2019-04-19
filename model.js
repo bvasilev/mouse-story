@@ -71,6 +71,23 @@ class Model {
     this._items = this._parseItems(fileData.items);
     return true;
   }
+
+  /**
+   * Given a char, construct and return the corresponding Tile object
+   * @param {string} c - a single character string
+   * @returns {Object} - a Tile
+   */
+  _charToTile(c) {
+    switch (c) {
+      case ".":
+        return new FreeTile();
+      case "#":
+        return new ObstacleTile();
+      default:
+        throw new Error("Unexpected tile");
+    }
+  }
+
   /**
    * Creates a grid of Tiles from a list of strings, which specify
    * a level.
@@ -78,18 +95,7 @@ class Model {
    * @param {string[]} grid
    */
   _parseGrid(grid) {
-    function charToTile(c) {
-      switch (c) {
-        case ".":
-          return new FreeTile();
-        case "#":
-          return new ObstacleTile();
-        default:
-          throw new Error("Unexpected tile");
-      }
-    }
-
-    return grid.map(row => row.split("").map(charToTile));
+    return grid.map(row => row.split("").map(this._charToTile));
   }
 
   /**
@@ -101,11 +107,22 @@ class Model {
    */
   _parseActors(actors) {
     for (const actor in actors) {
-      const type = actor.type;
-      const follows = this._meta.actorTypes[type];
-      const position = { row: actor.x, col: actor.y };
-      this._actors.push(new FollowingActor(type, follows, this, position));
+      this._addActor(actor);
     }
+  }
+
+  /**
+   * Add an actor to the level
+   * @param {Object} actor - the actor
+   * @param {string} actor.type - the type of the actor
+   * @param {int} actor.x - the x coordinate of the actor
+   * @param {int} actor.y - the y coordiante of the actor
+   */
+  _addActor(actor) {
+    const type = actor.type;
+    const follows = this._meta.actorTypes[type];
+    const position = { row: actor.x, col: actor.y };
+    this._actors.push(new FollowingActor(type, follows, this, position));
   }
 
   /**
@@ -193,8 +210,8 @@ class Model {
 
   /**
    * Queries the contents of a tile
-   * @param {int} x - the x coordinate in the level grid
-   * @param {int} y - the y coordiante in the level grid
+   * @param {int} x - the row in the level grid
+   * @param {int} y - the column in the level grid
    * @returns {Tile} - the tile at those coordinates
    * @throws {Error} - if location is outside of grid.
    */
