@@ -134,78 +134,104 @@ class Model {
   }
 
   /**
+   * Checks if a level contains all necessary attributes 
+   * @param {Object} fileData - the loaded .json data
+   * @returns {boolean} - true iff. fileData contains all necessary attributes
+   */
+  _fileDataHasNecessaryAttributes(fileData) {
+    const n_attr =
+          ["grid"
+          ,"grid_width"
+          ,"grid_height"
+          ,"actors"
+          ,"items"
+          ]
+
+    return n_attr.every(attr => attr in fileData))
+  }
+
+  /**
+   * Checks if fileData.grid is a rectangular matrix of size
+   * fileData.grid_height by fileData.grid_width
+   * @param {Object} fileData - the loaded .json data
+   * @returns {boolean} - true iff. fileData.grid is a rectangular matrix of size fileData.grid_height by fileData.grid_width
+   */
+  _fileDataHasCorrectGridSize(fileData){
+    // fileData has correct height and width
+    return fileData.grid.length == fileData.grid_height &&
+      fileData.grid.any(element => element.length != fileData.grid_width);
+  }
+
+  /**
+   * Checks if fileData.grid contains only valid tiles
+   * (i.e. those in this._meta.tileset)
+   * fileData.grid_height by fileData.grid_width
+   * @param {Object} fileData - the loaded .json data
+   * @returns {boolean} - true iff. fileData.grid contains only valid tiles
+   */
+  _fileDataHasValidTiles(fileData){
+    const good_tiles = this._meta.tileset
+    return fileData.grid.every(row => row.every(cell => cell in good_tiles))
+  }
+
+  /**
+   * Checks if fileData.actors contains only valid actors
+   * (i.e. those in this._meta.actorTypes, that are in bounds
+   * and that are on passable tiles)
+   * fileData.grid_height by fileData.grid_width
+   * @param {Object} fileData - the loaded .json data
+   * @returns {boolean} - true iff. fileData.actors contains only valid actors
+   */
+  _fileDataHasValidActors(fileData){
+    // if any invalid actors, return false
+    const good_actors = this._meta.actorTypes;
+    if(fileData.grid.actors.any(actor => !(actor.type in good_actors)))
+      return false;
+
+    // if any actors are out of bounds, return false
+    if(fileData.grid.actors.any(actor =>
+        actor.x < 0 ||
+        actor.x >= fileData.grid_width ||
+        actor.y < 0 ||
+        actor.y >= fileData.grid_height))
+      return false;
+
+    // if any actors are on inaccessibleTiles, then reutrn false
+    const bad_tiles = this._meta.inaccessibleTiles;
+    if(fileData.grid.actors.any(actor =>
+        fileData.grid[actor.x][actor.y] in bad_tiles))
+      return false;
+
+    //otherwise
+    return true
+  }
+
+  /**
+   * Checks if fileData.items contains only valid items
+   * (i.e. those in this._meta.items)
+   * fileData.grid_height by fileData.grid_width
+   * @param {Object} fileData - the loaded .json data
+   * @returns {boolean} - true iff. fileData.items contains only valid items
+   */
+  _fileDataHasValidItems(fileData){
+    // Check that all items are valid types
+    const good_items = this._meta.items;
+    return fileData.grid.items.every(item => item in good_items))
+  }
+
+  /**
    * Checks a level file for any errors (e.g. "width"
    * and "height" not mathcing the grid dimensions,
    * only valid symbols are used, etc.).
    * @param {Object} fileData - the loaded .json data
    * @returns {boolean} - true if it is a valid level, false otherwise
-   * TODO: Possibly split this into multiple functions
    */
   _validateLevelFile(fileData) {
-    // Has all necessary attributes
-    if (
-      !(
-        "grid" in fileData &&
-        "grid_width" in fileData &&
-        "grid_height" in fileData &&
-        "actors" in fileData &&
-        "items" in fileData
-      )
-    ) {
-      return false;
-    }
-    if (fileData.grid.length == 0) return false;
-    if (fileData.grid[0] == 0) return false;
-    if (
-      // Not every row has equal length
-      !fileData.grid.every(element => element.length == fileData.grid[0].length)
-    ) {
-      return false;
-    }
-
-    // Check that specified dimensions match actual dimensions
-    if (
-      fileData.grid_width != fileData.grid[0].length ||
-      fileData.grid_height != fileData.grid.length
-    ) {
-      return false;
-    }
-
-    // Check that all tiles are valid
-    const tileset = this._meta.tileset;
-    for (const row in fileData.grid) {
-      for (const cell in row) {
-        if (!(cell in tileset)) return false;
-      }
-    }
-
-    // Check that all actors are valid types and on accessible tiles
-    const inaccessibleTiles = this._meta.inaccessibleTiles;
-    const actorTypes = this._meta.actorTypes;
-    for (const actor in fileData.grid.actors) {
-      if (!(actor.type in actorTypes)) return false; // Invalid type
-      if (
-        // Out of level bounds
-        actor.x < 0 ||
-        actor.x >= fileData.grid_width ||
-        actor.y < 0 ||
-        actor.y >= fileData.grid_height
-      ) {
-        return false;
-      }
-      if (fileData.grid[actor.x][actor.y] in inaccessibleTiles) {
-        return false;
-      }
-    }
-
-    // Check that all items are valid types
-    const itemTypes = this._meta.items;
-    for (const item in fileData.grid.items) {
-      if (!(item in itemTypes)) return false;
-    }
-
-    // No errors encountered
-    return true;
+    return _fileDataHasNecessaryAttributes(fileData) &&
+        _fileDataHasCorrectGridSize(fileData) &&
+        _fileDataHasValidTiles(fileData) &&
+        _fileDataHasValidActors(fileData) &&
+        _fileDataHasValidItems(fileData)
   }
 
   /**
