@@ -1,0 +1,25 @@
+{
+  "grid": [ "....",
+            "....",
+            "...."],
+  "grid_width": 4,
+  "grid_height": 4,
+  "actors": [
+    {
+      "type": "Normal Mouse",
+      "x": 0, 
+      "y": 0
+    },
+    {
+      "type": "Cat",
+      "x": 2,
+      "y": 2
+    },
+    {
+      "type": "House",
+      "x": 3,
+      "y": 3
+    }
+  ],
+  "items": ["#", "Yarn", "Yarn"]
+}

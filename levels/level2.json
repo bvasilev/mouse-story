@@ -1,0 +1,20 @@
+{
+  "grid": [ "...",
+            "..#",
+            "..."],
+  "grid_width": 3,
+  "grid_height": 3,
+  "actors": [
+    {
+      "type": "Normal Mouse",
+      "x": 0, 
+      "y": 0
+    },
+    {
+      "type": "House",
+      "x": 2,
+      "y": 2
+    }
+  ],
+  "items": ["Cheese"]
+}

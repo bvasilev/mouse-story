@@ -1,0 +1,37 @@
+{
+  "grid": [ ".....",
+            "....#",
+            ".#...",
+            ".###.",
+            "....."],
+  "grid_width": 5,
+  "grid_height": 5,
+  "actors": [
+    {
+      "type": "Normal Mouse",
+      "x": 0, 
+      "y": 0
+    },
+    {
+      "type": "Blue Mouse",
+      "x": 4,
+      "y": 0
+    },
+    {
+      "type": "Blue House",
+      "x": 4,
+      "y": 2
+    },
+    {
+      "type": "Blue Cheese",
+      "x": 2,
+      "y": 0
+    },
+    {
+      "type": "Blue Cheese",
+      "x": 4,
+      "y": 4
+    }
+  ],
+  "items": ["#", "#", "#"]
+}

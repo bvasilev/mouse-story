@@ -1,0 +1,29 @@
+Levels are specified as a .json file.
+Level objects should have the following attributes:
+
+"grid" - The grid of tiles. This should contain things like
+free tiles and obsticles. The grid should be given as a list of strings.
+The mapping from characters to Tile objects is given below.
+
+"grid_width" - this should be equal to the length of any row.
+
+"grid_height" - this should be equal to the size of "grid"
+
+"actors" - The actors in a level. Given as a list of actor objects.
+This should include all Actors present in the level, such as
+mice, cheese, etc. Each actor should be given as a seperate object,
+which has the attributes:
+  "type" - the type of the Actor. Full list of posibilities below.
+  "x" - the x coordinate of the actor
+  "y" - the y coordinate of the actor
+The full list of actor types is given in metadata.json - each actor
+type is associated with the type which it should follow (with "N/A"
+meaning that it follows nothing i.e. stands still).
+
+"items" - The items a player possesses. This should be given as
+a list of strings. Full list of possible items is in metadata.json.
+
+APPENDIX:
+Grid tile mappings:
+  '.' -> FreeTile
+  '#' -> ObsticleTile
