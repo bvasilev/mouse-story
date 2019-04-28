@@ -23,7 +23,7 @@ class Model {
   /**
    * Gets an actor by name
    * @param {string} name - The name
-   * @return {actor}
+   * @return {actor} - The actor
    * @throws if the actor doesn't exist
    */
   getByName(name) {
@@ -51,7 +51,6 @@ class Model {
 
   /**
    * Reads a level from a file.
-   * TODO: Specify format.
    * @param {string} filePath - path to the .json level file
    * @returns {boolean} - false if something went wrong,
    * e.g. bad filepath, bad file, etc. true otherwise
@@ -134,20 +133,14 @@ class Model {
   }
 
   /**
-   * Checks if a level contains all necessary attributes 
+   * Checks if a level contains all necessary attributes
    * @param {Object} fileData - the loaded .json data
    * @returns {boolean} - true iff. fileData contains all necessary attributes
    */
   _fileDataHasNecessaryAttributes(fileData) {
-    const n_attr =
-          ["grid"
-          ,"grid_width"
-          ,"grid_height"
-          ,"actors"
-          ,"items"
-          ]
+    const n_attr = ["grid", "grid_width", "grid_height", "actors", "items"];
 
-    return n_attr.every(attr => attr in fileData))
+    return n_attr.every(attr => attr in fileData);
   }
 
   /**
@@ -156,10 +149,12 @@ class Model {
    * @param {Object} fileData - the loaded .json data
    * @returns {boolean} - true iff. fileData.grid is a rectangular matrix of size fileData.grid_height by fileData.grid_width
    */
-  _fileDataHasCorrectGridSize(fileData){
+  _fileDataHasCorrectGridSize(fileData) {
     // fileData has correct height and width
-    return fileData.grid.length == fileData.grid_height &&
-      fileData.grid.any(element => element.length != fileData.grid_width);
+    return (
+      fileData.grid.length == fileData.grid_height &&
+      fileData.grid.some(element => element.length != fileData.grid_width)
+    );
   }
 
   /**
@@ -169,9 +164,9 @@ class Model {
    * @param {Object} fileData - the loaded .json data
    * @returns {boolean} - true iff. fileData.grid contains only valid tiles
    */
-  _fileDataHasValidTiles(fileData){
-    const good_tiles = this._meta.tileset
-    return fileData.grid.every(row => row.every(cell => cell in good_tiles))
+  _fileDataHasValidTiles(fileData) {
+    const good_tiles = this._meta.tileset;
+    return fileData.grid.every(row => row.every(cell => cell in good_tiles));
   }
 
   /**
@@ -182,28 +177,35 @@ class Model {
    * @param {Object} fileData - the loaded .json data
    * @returns {boolean} - true iff. fileData.actors contains only valid actors
    */
-  _fileDataHasValidActors(fileData){
+  _fileDataHasValidActors(fileData) {
     // if any invalid actors, return false
     const good_actors = this._meta.actorTypes;
-    if(fileData.grid.actors.any(actor => !(actor.type in good_actors)))
+    if (fileData.grid.actors.any(actor => !(actor.type in good_actors)))
       return false;
 
     // if any actors are out of bounds, return false
-    if(fileData.grid.actors.any(actor =>
-        actor.x < 0 ||
-        actor.x >= fileData.grid_width ||
-        actor.y < 0 ||
-        actor.y >= fileData.grid_height))
+    if (
+      fileData.grid.actors.any(
+        actor =>
+          actor.x < 0 ||
+          actor.x >= fileData.grid_width ||
+          actor.y < 0 ||
+          actor.y >= fileData.grid_height
+      )
+    )
       return false;
 
     // if any actors are on inaccessibleTiles, then reutrn false
     const bad_tiles = this._meta.inaccessibleTiles;
-    if(fileData.grid.actors.any(actor =>
-        fileData.grid[actor.x][actor.y] in bad_tiles))
+    if (
+      fileData.grid.actors.any(
+        actor => fileData.grid[actor.x][actor.y] in bad_tiles
+      )
+    )
       return false;
 
     //otherwise
-    return true
+    return true;
   }
 
   /**
@@ -213,10 +215,10 @@ class Model {
    * @param {Object} fileData - the loaded .json data
    * @returns {boolean} - true iff. fileData.items contains only valid items
    */
-  _fileDataHasValidItems(fileData){
+  _fileDataHasValidItems(fileData) {
     // Check that all items are valid types
     const good_items = this._meta.items;
-    return fileData.grid.items.every(item => item in good_items))
+    return fileData.grid.items.every(item => item in good_items);
   }
 
   /**
@@ -227,11 +229,13 @@ class Model {
    * @returns {boolean} - true if it is a valid level, false otherwise
    */
   _validateLevelFile(fileData) {
-    return _fileDataHasNecessaryAttributes(fileData) &&
-        _fileDataHasCorrectGridSize(fileData) &&
-        _fileDataHasValidTiles(fileData) &&
-        _fileDataHasValidActors(fileData) &&
-        _fileDataHasValidItems(fileData)
+    return (
+      this._fileDataHasNecessaryAttributes(fileData) &&
+      this._fileDataHasCorrectGridSize(fileData) &&
+      this._fileDataHasValidTiles(fileData) &&
+      this._fileDataHasValidActors(fileData) &&
+      this._fileDataHasValidItems(fileData)
+    );
   }
 
   /**
