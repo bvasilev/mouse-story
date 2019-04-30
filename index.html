@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
+</head>
+<body>
+
+    <script>
+
+    var gridX=15
+    var gridY=5
+
+    var width = window.innerWidth-20
+    var height = window.innerHeight-20
+
+    class LevelSelect extends Phaser.Scene {
+
+        constructor ()
+        {
+            super({ key: 'levelSelect' });
+        }
+
+        preload ()
+        {
+
+        }
+
+        create ()
+        {
+            var levels = [
+                {
+                    name: 'Level 1',
+                    id: 1,
+                },{
+                    name: 'Level 2',
+                    id: 2,
+                },{
+                    name: 'Level 3',
+                    id: 3,
+                },{
+                    name: 'Level 4',
+                    id: 4,
+                },
+
+            ];
+
+            var $this = this;
+
+            this.add.text(100, 100, 'Level Select');
+
+            for(var n = 0; n < levels.length; n++) {
+                var r1 = this.add.circle(0, 0, 20, 0x6666ff);
+                var t1 = this.add.text(100, 0, levels[n].name);
+                var b1 = this.add.rectangle(0, 0, 400, 100, 0xcc0000);
+
+                var button = this.add.container(200, 200 + (n * 150), [ b1, r1, t1 ]);
+
+                button.setSize(400, 100);
+
+                button.setInteractive();
+
+                button.on("pointerdown", function (ev) {
+                    $this.scene.start("main");
+                });
+            }
+
+            /*this.input.manager.enabled = true;
+
+            this.input.once('pointerdown', function () {
+
+                this.scene.start('sceneB');
+
+            }, this);*/
+        }
+
+    }
+
+    var config = {
+        type: Phaser.AUTO,
+        width: width,
+        height: height,
+        scene: [LevelSelect,
+            {
+            preload: preload,
+            create: create,
+            key: 'main',
+        }]
+    };
+
+    var game = new Phaser.Game(config);
+
+    function preload ()
+    {
+        //this.load.setBaseURL('http://labs.phaser.io');
+
+        this.load.image('mouse', 'assets/img/mouse.png');
+        this.load.image('panel', 'assets/img/panel.jpg');
+    }
+
+    function create ()
+    {
+        var panel
+        var x=height/(1200*gridY);
+        var y=width/(1200*gridX);
+        if(y<x) x=y
+        for (var i = gridX-1; i >= 0; i--) {
+            for (var j = gridY-1; j >= 0; j--) {
+                var panel = this.add.image(0, 0, 'panel').setScale(x,x).setOrigin(i-gridX+1,j-gridY-(height-200)/800);
+            }   
+        }
+
+        var mouse = this.add.sprite(0, 0, 'mouse').setOrigin(0,-1-(height-200)/800);
+        mouse.displayHeight=x*800;
+        mouse.displayWidth=x*800;
+
+
+    }
+
+
+    </script>
+
+</body>
+</html>
