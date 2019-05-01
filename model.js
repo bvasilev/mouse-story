@@ -76,8 +76,8 @@ class Model {
 
     this._level = fileData;
     this._grid = this._parseGrid(fileData.grid);
-    this._actors = this._parseActors(fileData.actors);
-    this._items = this._parseItems(fileData.items);
+    this._parseActors(fileData.actors);
+    this._parseItems(fileData.items);
     return true;
   }
 
@@ -102,6 +102,7 @@ class Model {
    * a level.
    * Precondition: The list must contain only valid characters.
    * @param {string[]} grid
+   * @returns {Object[][]} - a matrix of tiles, corresponding to the text encoding
    */
   _parseGrid(grid) {
     return grid.map(row => row.split("").map(this._charToTile));
@@ -130,7 +131,7 @@ class Model {
   _addActor(actor) {
     const type = actor.type;
     const follows = this._meta.actorTypes[type];
-    const position = { row: actor.x, col: actor.y };
+    const position = new Point(actor.x, actor.y);
     this._actors.push(new FollowingActor(type, follows, this, position));
   }
 
@@ -708,9 +709,10 @@ function phaserPreload() {
 }
 
 // Testing script:
-// const m = new Model();
-// const res = m.readLevelFromFile("level1");
-// m.startGame();
-// console.log("Level read result:");
-// console.log(res);
-// console.log(m);
+//const m = new Model();
+//console.log(m.actors);
+//const res = m.readLevelFromFile("level1");
+//m.startGame();
+//console.log("Level read result:");
+//console.log(res);
+console.log(m);
