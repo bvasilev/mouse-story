@@ -163,7 +163,7 @@ class Model {
     // fileData has correct height and width
     return (
       fileData.grid.length == fileData.grid_height &&
-      fileData.grid.some(element => element.length != fileData.grid_width)
+      !fileData.grid.some(element => element.length != fileData.grid_width)
     );
   }
 
@@ -176,7 +176,10 @@ class Model {
    */
   _fileDataHasValidTiles(fileData) {
     const good_tiles = this._meta.tileset;
-    return fileData.grid.every(row => row.every(cell => cell in good_tiles));
+    const res = fileData.grid.every(row =>
+      row.split("").every(cell => good_tiles.indexOf(cell) > -1)
+    );
+    return res;
   }
 
   /**
@@ -190,12 +193,13 @@ class Model {
   _fileDataHasValidActors(fileData) {
     // if any invalid actors, return false
     const good_actors = this._meta.actorTypes;
-    if (fileData.grid.actors.any(actor => !(actor.type in good_actors)))
-      return false;
+    for (const actor of fileData.actors) {
+      if (!(actor.type in good_actors)) return false;
+    }
 
     // if any actors are out of bounds, return false
     if (
-      fileData.grid.actors.any(
+      fileData.actors.some(
         actor =>
           actor.x < 0 ||
           actor.x >= fileData.grid_width ||
@@ -208,8 +212,8 @@ class Model {
     // if any actors are on inaccessibleTiles, then reutrn false
     const bad_tiles = this._meta.inaccessibleTiles;
     if (
-      fileData.grid.actors.any(
-        actor => fileData.grid[actor.x][actor.y] in bad_tiles
+      fileData.actors.some(
+        actor => bad_tiles.indexOf(fileData.grid[actor.x][actor.y]) > -1
       )
     )
       return false;
@@ -227,8 +231,8 @@ class Model {
    */
   _fileDataHasValidItems(fileData) {
     // Check that all items are valid types
-    const good_items = this._meta.items;
-    return fileData.grid.items.every(item => item in good_items);
+    const good_items = this._meta.itemTypes;
+    return fileData.items.every(item => good_items.indexOf(item) > -1);
   }
 
   /**
@@ -237,15 +241,21 @@ class Model {
    * only valid symbols are used, etc.).
    * @param {Object} fileData - the loaded .json data
    * @returns {boolean} - true if it is a valid level, false otherwise
+   * @throws {Error} - if level is not correctly specified
    */
   _validateLevelFile(fileData) {
-    return (
-      this._fileDataHasNecessaryAttributes(fileData) &&
-      this._fileDataHasCorrectGridSize(fileData) &&
-      this._fileDataHasValidTiles(fileData) &&
-      this._fileDataHasValidActors(fileData) &&
-      this._fileDataHasValidItems(fileData)
-    );
+    if (!this._fileDataHasNecessaryAttributes(fileData))
+      throw new Error("Level doesn't have necessary attributes");
+    if (!this._fileDataHasCorrectGridSize(fileData))
+      throw new Error("Level data has incorrect grid size");
+    if (!this._fileDataHasValidTiles(fileData))
+      throw new Error("Level data has invalid tiles");
+    if (!this._fileDataHasValidActors(fileData))
+      throw new Error("Level has invalid actors");
+    if (!this._fileDataHasValidItems(fileData))
+      throw new Error("Level has invalid items");
+
+    return true;
   }
 
   /**
@@ -697,6 +707,10 @@ function phaserPreload() {
   // this.load.image("cheese", "Images/cheese.png");
 }
 
-//const m = new Model();
-//m.readLevelFromFile("level1");
-console.log(levels);
+// Testing script:
+// const m = new Model();
+// const res = m.readLevelFromFile("level1");
+// m.startGame();
+// console.log("Level read result:");
+// console.log(res);
+// console.log(m);
