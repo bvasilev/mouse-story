@@ -38,6 +38,6 @@ var level2 = {
     }
   ],
   "items": ["Cheese"]
-}
+};
 
 var levels = [level1, level2];
