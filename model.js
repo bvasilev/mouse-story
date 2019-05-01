@@ -64,6 +64,7 @@ class Model {
     // if (filePath.slice(-5) != ".json") {
     //   throw new Error("Wrong file type!");
     // }
+
     if (!(filePath in levels)) {
       throw new Error("Level not found!");
     }
@@ -73,6 +74,7 @@ class Model {
       return false;
     }
 
+    this._level = fileData;
     this._grid = this._parseGrid(fileData.grid);
     this._actors = this._parseActors(fileData.actors);
     this._items = this._parseItems(fileData.items);
@@ -113,7 +115,7 @@ class Model {
    * @param {int} actors.y - the y coordiante of the actor
    */
   _parseActors(actors) {
-    for (const actor in actors) {
+    for (const actor of actors) {
       this._addActor(actor);
     }
   }
@@ -342,7 +344,7 @@ class Model {
    * @param {int} y - y coordiante to compare with
    */
   _existsAtLocation(array, x, y) {
-    for (const element in array) {
+    for (const element of array) {
       if (element.x === x && element.y === y) return true;
     }
     return false;
@@ -372,9 +374,11 @@ class Model {
   startGame() {
     if (this._level == null)
       throw new Error("Can't start game without a level loaded!");
-    for (const item in this._placedItems) {
-      if (item.type in this._meta.tileset)
+    for (const item of this._placedItems) {
+      // If this item is a tile
+      if (this._meta.tileset.indexOf(item.type) > -1)
         this._modifyTile(item.x, item.y, item.type);
+      // Else if this item is an actor
       else if (item.type in this._meta.actorTypes) this._addActor(item);
       else throw new Error("Unexpected item type");
     }
@@ -391,10 +395,10 @@ class Model {
    */
   runStep() {
     // 1. check if terminate
-    for (a of this._actors) if (a.shouldTerminate) return true;
+    for (const a of this._actors) if (a.shouldTerminate) return true;
 
     // 2. get movements
-    for (a of this._actors) {
+    for (const a of this._actors) {
       var target = a.shouldMove;
       a.position = target;
       this._grid[target.row][target.column].onEnter();
