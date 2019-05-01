@@ -2,9 +2,10 @@
  * Represents the model of the grid. Responsible for
  * maintaining the state of the game and advancing it.
  */
+//let levels = require("./levels.js");
 class Model {
   constructor() {
-    this._meta = require("./levels/metadata.json");
+    this._meta = levels.metadata;
     this._grid = []; // The level grid - a matrix
     this._actors = []; // Actors on the grid, specified by type and coordinates
     this._items = []; // Items the player has, specified by type (string)
@@ -18,6 +19,10 @@ class Model {
    */
   get actors() {
     return this._actors;
+  }
+
+  get items() {
+    return this._items;
   }
 
   /**
@@ -56,11 +61,14 @@ class Model {
    * e.g. bad filepath, bad file, etc. true otherwise
    */
   readLevelFromFile(filePath) {
-    if (filePath.slice(-5) != ".json") {
-      throw new Error("Wrong file type!");
+    // if (filePath.slice(-5) != ".json") {
+    //   throw new Error("Wrong file type!");
+    // }
+    if (!(filePath in levels)) {
+      throw new Error("Level not found!");
     }
 
-    let fileData = require(filePath); // load the file
+    let fileData = levels[filePath]; // load the level
     if (!this._validateLevelFile(fileData)) {
       return false;
     }
@@ -430,20 +438,20 @@ class FollowingActor {
   }
 
   /** Get texture filename.
-   * @returns {string} - texture filename
+   * @returns {string} - texture alias in phaser
    */
-  get textureFile() {
+  get phaserTextureAlias() {
     switch (this._name) {
       case "Normal Mouse":
-        return "normal_mouse.png";
+        return "Normal Mouse";
       case "Cheese":
-        return "cheese.png";
+        return "Cheese";
       case "House":
-        return "house.png";
+        return "House";
       case "Blue Mouse":
-        return "blue_mouse.png";
+        return "Blue Mouse";
       case "Blue Cheese":
-        return "blue_cheese.png";
+        return "Blue Cheese";
       default:
         throw Error("Actor type " + this._name + " has no texture file!");
     }
@@ -595,11 +603,11 @@ class FreeTile {
     this._name = "";
   }
 
-  /** Get path to texture file.
+  /** Get texture alias in phaser.
    * @returns {string} - path to texture file
    */
-  get texturePath() {
-    return "/assets/img/free_tile.png";
+  get phaserTextureAlias() {
+    return "Free Tile";
   }
 
   /**
@@ -638,8 +646,8 @@ class ObstacleTile {
   /** Get path to texture file.
    * @returns {string} - path to texture file
    */
-  get texturePath() {
-    return "/assets/img/obstacle_tile.png";
+  get phaserTextureAlias() {
+    return "Obstacle Tile";
   }
 
   /**
@@ -664,3 +672,27 @@ class ObstacleTile {
    */
   onEnter() {}
 }
+
+/**
+ * Preload function for the phaser game.
+ * Use this in the phaser config when creating the game.
+ */
+function phaserPreload() {
+  this.load.image("Free Tile", "assets/img/free_tile.png");
+  this.load.image("Obstacle Tile", "assets/img/obstacle_tile.png");
+
+  this.load.image("Normal Mouse", "assets/img/normal_mouse.png");
+  this.load.image("Cheese", "assets/img/cheese.png");
+  this.load.image("House", "assets/img/house.png");
+  this.load.image("Blue Mouse", "assets/img/blue_mouse.png");
+  this.load.image("Blue Cheese", "assets/img/blue_cheese.png");
+  // Misc
+  // this.load.image("mouse", "Images/mouse.png");
+  // this.load.image(".", "Images/panel.png");
+  // this.load.image("#", "Images/obstacle.png");
+  // this.load.image("cheese", "Images/cheese.png");
+}
+
+//const m = new Model();
+//m.readLevelFromFile("level1");
+console.log(levels);
