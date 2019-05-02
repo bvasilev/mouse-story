@@ -76,8 +76,8 @@ class Model {
 
     this._level = fileData;
     this._grid = this._parseGrid(fileData.grid);
-    this._parseActors(fileData.actors);
-    this._parseItems(fileData.items);
+    this._initActors(fileData.actors);
+    this._initItems(fileData.items);
     return true;
   }
 
@@ -205,9 +205,9 @@ class Model {
       fileData.actors.some(
         actor =>
           actor.x < 0 ||
-          actor.x >= fileData.grid_width ||
+          actor.x >= fileData.grid_height ||
           actor.y < 0 ||
-          actor.y >= fileData.grid_height
+          actor.y >= fileData.grid_width
       )
     )
       return false;
@@ -263,8 +263,8 @@ class Model {
 
   /**
    * Queries the contents of a tile
-   * @param {int} x - the row in the level grid
-   * @param {int} y - the column in the level grid
+   * @param {number} x - the row in the level grid
+   * @param {number} y - the column in the level grid
    * @returns {Tile} - the tile at those coordinates
    * @throws {Error} - if location is outside of grid.
    */
@@ -279,21 +279,22 @@ class Model {
 
   /**
    * Modifies a tile
-   * @param {int} x - the row in the level grid
-   * @param {int} y - the column in the level grid
+   * @param {number} x - the row in the level grid
+   * @param {number} y - the column in the level grid
    * @param {string} newTile - the type of the Tile - a one character string
    */
   _modifyTile(x, y, newTile) {
     if (x < 0 || y < 0 || x >= this.cntRows || y >= this.cntCols)
       throw Error("Tried to modify Tile outside of grid!");
 
+    console.log("Bing");
     this._grid[x][y] = this._charToTile(newTile);
   }
 
   /**
    * Place an item on the grid
-   * @param {int} x - the row in the level grid
-   * @param {int} y - the column in the level grid
+   * @param {number} x - the row in the level grid
+   * @param {number} y - the column in the level grid
    * @param {string} item - the type of the item
    * @returns {boolean} - true if item was places successfully, false otherwise
    * @throws {Error} - If no level is loaded or the item is not in the player's inventory
@@ -301,7 +302,7 @@ class Model {
   placeItem(x, y, item) {
     if (this._level == null)
       throw new Error("Can't place items without a level loaded!");
-    if (!(item in this._items))
+    if (this._items.indexOf(item) == -1)
       throw new Error("Tried to place non-existing item!");
 
     if (!this._canPlaceItemHere(x, y, item)) return false;
@@ -314,8 +315,8 @@ class Model {
 
   /**
    * Remove an item from the grid at position (x,y) if there is one there
-   * @param {int} x - row
-   * @param {int} y - column
+   * @param {number} x - row
+   * @param {number} y - column
    * @returns {boolean} - true if there was an item and it was removed, false otherwise
    */
   removeItem(x, y) {
@@ -329,17 +330,18 @@ class Model {
 
   /**
    * Return weather item can be placed at location (x,y) on the grid
-   * @param {int} x - row of grid
-   * @param {int} y - column of grid
+   * @param {number} x - row of grid
+   * @param {number} y - column of grid
    * @param {string} item - item type
    */
   _canPlaceItemHere(x, y, item) {
     // Can't place item outside of grid
     if (x < 0 || x >= this.cntRows || y < 0 || y >= this.cntCols) return false;
     // Can't place item on an inaccessible tile
-    if (this._grid[x][y] in this._meta.inaccessibleTiles) return false;
+    if (this._meta.inaccessibleTiles.indexOf(this._grid[x][y]) > -1)
+      return false;
     // Can't place item if there is an actor on that tile currenly
-    if (this._existsAtLocation(this.actors, x, y)) return false;
+    if (this._existsActorAtLocation(x, y)) return false;
     // Can't place item if there is another item already there
     if (this._existsAtLocation(this._placedItems, x, y)) return false;
 
@@ -723,10 +725,11 @@ function phaserPreload() {
 }
 
 // Testing script:
-//const m = new Model();
-//console.log(m.actors);
-//const res = m.readLevelFromFile("level1");
-//m.startGame();
-//console.log("Level read result:");
-//console.log(res);
-//console.log(m);
+// const m = new Model();
+// const res = m.readLevelFromFile("level3");
+// console.log(m._existsActorAtLocation(2, 2));
+// m.placeItem(2, 3, "#");
+// m.startGame();
+// console.log("Level read result:");
+// console.log(res);
+// console.log(m);
