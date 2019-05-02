@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
+    <script src="model.js"></script>
+</head>
+<body>
+
+    <script>
+
+    const model = new Model();
+
+    var level=[[".",".","."],["#",".","."],["#",".","."]]
+
+    //model.readLevel(1)
+
+    //alert(model._grid)
+
+    var gridX=level[0].length//model.cntCols()
+    var gridY=level.length//model.cntRows()
+
+    var width = window.innerWidth-20
+    var height = window.innerHeight-20
+
+    var config = {
+        type: Phaser.AUTO,
+        width: width,
+        height: height,
+        scene: {
+            preload: preload,
+            create: create
+        }
+    };
+
+    var game = new Phaser.Game(config);
+
+    function preload ()
+    {
+        //this.load.setBaseURL('http://labs.phaser.io');
+
+        this.load.image('mouse', 'Images/mouse.png');
+        this.load.image('.', 'Images/panel.png');
+        this.load.image('#', 'Images/obstacle.png');
+        this.load.image('cheese', 'Images/cheese.png');
+    }
+
+    function create ()
+    {
+        var panel
+        var x=height/(1200*gridY);
+        var y=width/(1200*gridX);
+        if(y<x) x=y
+        for (var i = gridX-1; i >= 0; i--) {
+            for (var j = gridY-1; j >= 0; j--) {
+                var panel = this.add.image(0, 0, '.').setScale(x,x).setOrigin(i-gridX+1,j-gridY-(height-200)/800);
+                //var squareType = _grid[i][j]._name
+                var squareType = level[gridY-1-j][gridX-1-i]
+                if(squareType!="."){
+                    var panel = this.add.image(0, 0, squareType).setScale(x,x).setOrigin(i-gridX+1,j-gridY-(height-200)/800);
+                }
+            }   
+        }
+
+        var mouse = this.add.sprite(0, 0, 'mouse').setOrigin(0,-1-(height-200)/800);
+        mouse.displayHeight=x*800;
+        mouse.displayWidth=x*800;
+        var cheese = this.add.sprite(0, 0, 'cheese').setOrigin(-1,-2-(height-200)/800);
+        cheese.displayHeight=x*800;
+        cheese.displayWidth=x*800;
+
+
+    }
+    </script>
+
+</body>
+</html>

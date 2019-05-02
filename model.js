@@ -2,9 +2,10 @@
  * Represents the model of the grid. Responsible for
  * maintaining the state of the game and advancing it.
  */
+//let levels = require("./levels.js");
 class Model {
   constructor() {
-    this._meta = require("./levels/metadata.json");
+    this._meta = levels.metadata;
     this._grid = []; // The level grid - a matrix
     this._actors = []; // Actors on the grid, specified by type and coordinates
     this._items = []; // Items the player has, specified by type (string)
@@ -20,6 +21,10 @@ class Model {
     return this._actors;
   }
 
+  get items() {
+    return this._items;
+  }
+
   /**
    * Gets an actor by name
    * @param {string} name - The name
@@ -33,7 +38,7 @@ class Model {
 
   /**
    * Returns the number of rows
-   * @return{int}
+   * @return{number}
    */
   get cntRows() {
     if (this._level != null) return this._level.grid_height;
@@ -42,7 +47,7 @@ class Model {
 
   /**
    * Returns the number of columns
-   * @return{int}
+   * @return{number}
    */
   get cntCols() {
     if (this._level != null) return this._level.grid_width;
@@ -56,19 +61,40 @@ class Model {
    * e.g. bad filepath, bad file, etc. true otherwise
    */
   readLevelFromFile(filePath) {
-    if (filePath.slice(-5) != ".json") {
-      throw new Error("Wrong file type!");
+    // if (filePath.slice(-5) != ".json") {
+    //   throw new Error("Wrong file type!");
+    // }
+
+    if (!(filePath in levels)) {
+      throw new Error("Level not found!");
     }
 
-    let fileData = require(filePath); // load the file
+    let fileData = levels[filePath]; // load the level
     if (!this._validateLevelFile(fileData)) {
       return false;
     }
 
-    this._grid = this._parseGrid(fileData.grid);
-    this._actors = this._parseActors(fileData.actors);
-    this._items = this._parseItems(fileData.items);
+    this._level = fileData;
+    this._initLevel();
     return true;
+  }
+
+  /**
+   * Initialise level state once this._level is set to
+   * a valid level
+   */
+  _initLevel() {
+    this._grid = this._parseGrid(this._level.grid);
+    this._initActors(this._level.actors);
+    this._initItems(this._level.items);
+    this._placedItems = [];
+  }
+
+  /**
+   * Reset level to its original state.
+   */
+  resetLevel() {
+    this._initLevel();
   }
 
   /**
@@ -92,6 +118,7 @@ class Model {
    * a level.
    * Precondition: The list must contain only valid characters.
    * @param {string[]} grid
+   * @returns {Object[][]} - a matrix of tiles, corresponding to the text encoding
    */
   _parseGrid(grid) {
     return grid.map(row => row.split("").map(this._charToTile));
@@ -101,11 +128,13 @@ class Model {
    * Sets up the list of actors from a given list.
    * @param {Object[]} actors - the list of actors
    * @param {string} actors.type - the type of the actor
-   * @param {int} actors.x - the x coordinate of the actor
-   * @param {int} actors.y - the y coordiante of the actor
+   * @param {number} actors.x - the x coordinate of the actor
+   * @param {number} actors.y - the y coordiante of the actor
    */
-  _parseActors(actors) {
-    for (const actor in actors) {
+  _initActors(actors) {
+    this._actors = []; // Clear actor array
+    // Populate it with new actors
+    for (const actor of actors) {
       this._addActor(actor);
     }
   }
@@ -114,22 +143,22 @@ class Model {
    * Add an actor to the level
    * @param {Object} actor - the actor
    * @param {string} actor.type - the type of the actor
-   * @param {int} actor.x - the x coordinate of the actor
-   * @param {int} actor.y - the y coordiante of the actor
+   * @param {number} actor.x - the x coordinate of the actor
+   * @param {number} actor.y - the y coordiante of the actor
    */
   _addActor(actor) {
     const type = actor.type;
     const follows = this._meta.actorTypes[type];
-    const position = { row: actor.x, col: actor.y };
+    const position = new Point(actor.x, actor.y);
     this._actors.push(new FollowingActor(type, follows, this, position));
   }
 
   /**
-   * Fills the list of items from the given string.
+   * Fills the list of items from the given list.
    * @param {string[]} items
    */
-  _parseItems(items) {
-    this._items = items;
+  _initItems(items) {
+    this._items = Array.from(items);
   }
 
   /**
@@ -153,7 +182,7 @@ class Model {
     // fileData has correct height and width
     return (
       fileData.grid.length == fileData.grid_height &&
-      fileData.grid.some(element => element.length != fileData.grid_width)
+      !fileData.grid.some(element => element.length != fileData.grid_width)
     );
   }
 
@@ -166,7 +195,10 @@ class Model {
    */
   _fileDataHasValidTiles(fileData) {
     const good_tiles = this._meta.tileset;
-    return fileData.grid.every(row => row.every(cell => cell in good_tiles));
+    const res = fileData.grid.every(row =>
+      row.split("").every(cell => good_tiles.indexOf(cell) > -1)
+    );
+    return res;
   }
 
   /**
@@ -180,17 +212,18 @@ class Model {
   _fileDataHasValidActors(fileData) {
     // if any invalid actors, return false
     const good_actors = this._meta.actorTypes;
-    if (fileData.grid.actors.any(actor => !(actor.type in good_actors)))
-      return false;
+    for (const actor of fileData.actors) {
+      if (!(actor.type in good_actors)) return false;
+    }
 
     // if any actors are out of bounds, return false
     if (
-      fileData.grid.actors.any(
+      fileData.actors.some(
         actor =>
           actor.x < 0 ||
-          actor.x >= fileData.grid_width ||
+          actor.x >= fileData.grid_height ||
           actor.y < 0 ||
-          actor.y >= fileData.grid_height
+          actor.y >= fileData.grid_width
       )
     )
       return false;
@@ -198,8 +231,8 @@ class Model {
     // if any actors are on inaccessibleTiles, then reutrn false
     const bad_tiles = this._meta.inaccessibleTiles;
     if (
-      fileData.grid.actors.any(
-        actor => fileData.grid[actor.x][actor.y] in bad_tiles
+      fileData.actors.some(
+        actor => bad_tiles.indexOf(fileData.grid[actor.x][actor.y]) > -1
       )
     )
       return false;
@@ -217,8 +250,8 @@ class Model {
    */
   _fileDataHasValidItems(fileData) {
     // Check that all items are valid types
-    const good_items = this._meta.items;
-    return fileData.grid.items.every(item => item in good_items);
+    const good_items = this._meta.itemTypes;
+    return fileData.items.every(item => good_items.indexOf(item) > -1);
   }
 
   /**
@@ -227,21 +260,27 @@ class Model {
    * only valid symbols are used, etc.).
    * @param {Object} fileData - the loaded .json data
    * @returns {boolean} - true if it is a valid level, false otherwise
+   * @throws {Error} - if level is not correctly specified
    */
   _validateLevelFile(fileData) {
-    return (
-      this._fileDataHasNecessaryAttributes(fileData) &&
-      this._fileDataHasCorrectGridSize(fileData) &&
-      this._fileDataHasValidTiles(fileData) &&
-      this._fileDataHasValidActors(fileData) &&
-      this._fileDataHasValidItems(fileData)
-    );
+    if (!this._fileDataHasNecessaryAttributes(fileData))
+      throw new Error("Level doesn't have necessary attributes");
+    if (!this._fileDataHasCorrectGridSize(fileData))
+      throw new Error("Level data has incorrect grid size");
+    if (!this._fileDataHasValidTiles(fileData))
+      throw new Error("Level data has invalid tiles");
+    if (!this._fileDataHasValidActors(fileData))
+      throw new Error("Level has invalid actors");
+    if (!this._fileDataHasValidItems(fileData))
+      throw new Error("Level has invalid items");
+
+    return true;
   }
 
   /**
    * Queries the contents of a tile
-   * @param {int} x - the row in the level grid
-   * @param {int} y - the column in the level grid
+   * @param {number} x - the row in the level grid
+   * @param {number} y - the column in the level grid
    * @returns {Tile} - the tile at those coordinates
    * @throws {Error} - if location is outside of grid.
    */
@@ -256,8 +295,8 @@ class Model {
 
   /**
    * Modifies a tile
-   * @param {int} x - the row in the level grid
-   * @param {int} y - the column in the level grid
+   * @param {number} x - the row in the level grid
+   * @param {number} y - the column in the level grid
    * @param {string} newTile - the type of the Tile - a one character string
    */
   _modifyTile(x, y, newTile) {
@@ -269,8 +308,8 @@ class Model {
 
   /**
    * Place an item on the grid
-   * @param {int} x - the row in the level grid
-   * @param {int} y - the column in the level grid
+   * @param {number} x - the row in the level grid
+   * @param {number} y - the column in the level grid
    * @param {string} item - the type of the item
    * @returns {boolean} - true if item was places successfully, false otherwise
    * @throws {Error} - If no level is loaded or the item is not in the player's inventory
@@ -278,7 +317,7 @@ class Model {
   placeItem(x, y, item) {
     if (this._level == null)
       throw new Error("Can't place items without a level loaded!");
-    if (!(item in this._items))
+    if (this._items.indexOf(item) == -1)
       throw new Error("Tried to place non-existing item!");
 
     if (!this._canPlaceItemHere(x, y, item)) return false;
@@ -291,8 +330,8 @@ class Model {
 
   /**
    * Remove an item from the grid at position (x,y) if there is one there
-   * @param {int} x - row
-   * @param {int} y - column
+   * @param {number} x - row
+   * @param {number} y - column
    * @returns {boolean} - true if there was an item and it was removed, false otherwise
    */
   removeItem(x, y) {
@@ -306,17 +345,18 @@ class Model {
 
   /**
    * Return weather item can be placed at location (x,y) on the grid
-   * @param {int} x - row of grid
-   * @param {int} y - column of grid
+   * @param {number} x - row of grid
+   * @param {number} y - column of grid
    * @param {string} item - item type
    */
   _canPlaceItemHere(x, y, item) {
     // Can't place item outside of grid
     if (x < 0 || x >= this.cntRows || y < 0 || y >= this.cntCols) return false;
     // Can't place item on an inaccessible tile
-    if (this._grid[x][y] in this._meta.inaccessibleTiles) return false;
+    if (this._meta.inaccessibleTiles.indexOf(this._grid[x][y]) > -1)
+      return false;
     // Can't place item if there is an actor on that tile currenly
-    if (this._existsAtLocation(this.actors, x, y)) return false;
+    if (this._existsActorAtLocation(x, y)) return false;
     // Can't place item if there is another item already there
     if (this._existsAtLocation(this._placedItems, x, y)) return false;
 
@@ -325,16 +365,28 @@ class Model {
   }
 
   /**
+   * Is there an actor currently occupying that position?
+   * @param {number} row - the row of the position in the grid
+   * @param {number} col - the column of the position in the grid
+   */
+  _existsActorAtLocation(row, col) {
+    for (const actor of this._actors) {
+      if (actor.position.row === row && actor.position.col === col) return true;
+    }
+    return false;
+  }
+
+  /**
    * Given an array of objects with coordinates and two coordiante points
    * return weather there is an object in array with coordinates (x,y)
    * @param {Object[]} array - array of objects
-   * @param {int} array.x - x coordiante of object
-   * @param {int} array.y - y coordiante of object
-   * @param {int} x - x coordinate to compare with
-   * @param {int} y - y coordiante to compare with
+   * @param {number} array.x - row coordiante of object
+   * @param {number} array.y - column coordiante of object
+   * @param {number} x - row coordinate to compare with
+   * @param {number} y - column coordiante to compare with
    */
   _existsAtLocation(array, x, y) {
-    for (const element in array) {
+    for (const element of array) {
       if (element.x === x && element.y === y) return true;
     }
     return false;
@@ -345,10 +397,10 @@ class Model {
    * return the index of the first bject in array with coordinates (x,y) or -1
    * if there is none
    * @param {Object[]} array - array of objects
-   * @param {int} array.x - x coordiante of object
-   * @param {int} array.y - y coordiante of object
-   * @param {int} x - x coordinate to compare with
-   * @param {int} y - y coordiante to compare with
+   * @param {number} array.x - row coordiante of object
+   * @param {number} array.y - column coordiante of object
+   * @param {number} x - row coordinate to compare with
+   * @param {number} y - column coordiante to compare with
    */
   _getIndexOf(array, x, y) {
     for (var i = 0; i < this._placedItems.length; i++) {
@@ -364,9 +416,11 @@ class Model {
   startGame() {
     if (this._level == null)
       throw new Error("Can't start game without a level loaded!");
-    for (const item in this._placedItems) {
-      if (item.type in this._meta.tileset)
+    for (const item of this._placedItems) {
+      // If this item is a tile
+      if (this._meta.tileset.indexOf(item.type) > -1)
         this._modifyTile(item.x, item.y, item.type);
+      // Else if this item is an actor
       else if (item.type in this._meta.actorTypes) this._addActor(item);
       else throw new Error("Unexpected item type");
     }
@@ -383,10 +437,10 @@ class Model {
    */
   runStep() {
     // 1. check if terminate
-    for (a of this._actors) if (a.shouldTerminate) return true;
+    for (const a of this._actors) if (a.shouldTerminate) return true;
 
     // 2. get movements
-    for (a of this._actors) {
+    for (const a of this._actors) {
       var target = a.shouldMove;
       a.position = target;
       this._grid[target.row][target.column].onEnter();
@@ -430,20 +484,20 @@ class FollowingActor {
   }
 
   /** Get texture filename.
-   * @returns {string} - texture filename
+   * @returns {string} - texture alias in phaser
    */
-  get textureFile() {
+  get phaserTextureAlias() {
     switch (this._name) {
       case "Normal Mouse":
-        return "normal_mouse.png";
+        return "Normal Mouse";
       case "Cheese":
-        return "cheese.png";
+        return "Cheese";
       case "House":
-        return "house.png";
+        return "House";
       case "Blue Mouse":
-        return "blue_mouse.png";
+        return "Blue Mouse";
       case "Blue Cheese":
-        return "blue_cheese.png";
+        return "Blue Cheese";
       default:
         throw Error("Actor type " + this._name + " has no texture file!");
     }
@@ -524,17 +578,17 @@ class FollowingActor {
 class Point {
   /**
    * Constructs a point
-   * @param {int} [row=0] - the row of the point
-   * @param {int} [col=0] - the column of the point
+   * @param {number} [row=0] - the row of the point
+   * @param {number} [col=0] - the column of the point
    */
   constructor(row = 0, col = 0) {
-    var _row = row;
-    var _col = col;
+    this._row = row;
+    this._col = col;
   }
 
   /**
    * Gets the row of the point
-   * @returns {int}
+   * @returns {number}
    */
   get row() {
     return this._row;
@@ -542,16 +596,16 @@ class Point {
 
   /**
    * Gets the column of the point
-   * @returns {int}
+   * @returns {number}
    */
-  get column() {
+  get col() {
     return this._col;
   }
 
   /**
    * Creates a new point, at some offset from this point
-   * @param {int} dlin - The line offset
-   * @param {int} dcol - The column offset
+   * @param {number} dlin - The line offset
+   * @param {number} dcol - The column offset
    * @returns {Point}
    */
   makeAtOffset(dlin, dcol) {
@@ -595,11 +649,11 @@ class FreeTile {
     this._name = "";
   }
 
-  /** Get path to texture file.
+  /** Get texture alias in phaser.
    * @returns {string} - path to texture file
    */
-  get texturePath() {
-    return "/assets/img/free_tile.png";
+  get phaserTextureAlias() {
+    return "Free Tile";
   }
 
   /**
@@ -638,8 +692,8 @@ class ObstacleTile {
   /** Get path to texture file.
    * @returns {string} - path to texture file
    */
-  get texturePath() {
-    return "/assets/img/obstacle_tile.png";
+  get phaserTextureAlias() {
+    return "Obstacle Tile";
   }
 
   /**
@@ -664,3 +718,35 @@ class ObstacleTile {
    */
   onEnter() {}
 }
+
+/**
+ * Preload function for the phaser game.
+ * Use this in the phaser config when creating the game.
+ */
+function phaserPreload() {
+  this.load.image("Free Tile", "assets/img/free_tile.png");
+  this.load.image("Obstacle Tile", "assets/img/obstacle_tile.png");
+
+  this.load.image("Normal Mouse", "assets/img/normal_mouse.png");
+  this.load.image("Cheese", "assets/img/cheese.png");
+  this.load.image("House", "assets/img/house.png");
+  this.load.image("Blue Mouse", "assets/img/blue_mouse.png");
+  this.load.image("Blue Cheese", "assets/img/blue_cheese.png");
+  // Misc
+  // this.load.image("mouse", "Images/mouse.png");
+  // this.load.image(".", "Images/panel.png");
+  // this.load.image("#", "Images/obstacle.png");
+  // this.load.image("cheese", "Images/cheese.png");
+}
+
+//Testing script:
+// const m = new Model();
+// const res = m.readLevelFromFile("level3");
+// console.log(m._existsActorAtLocation(2, 2));
+// m.placeItem(2, 3, "#");
+// m.startGame();
+// console.log("Level read result:");
+// console.log(res);
+// console.log(m);
+// m.resetLevel();
+// console.log(m);
