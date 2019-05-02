@@ -2,22 +2,24 @@
 <html>
 <head>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
+    <script src="levels.js"></script>
     <script src="model.js"></script>
 </head>
 <body>
 
     <script>
 
-    const model = new Model();
+    var model = new Model();
 
-    var level=[[".",".","."],["#",".","."],["#",".","."]]
+    model.readLevelFromFile(5)
 
-    //model.readLevel(1)
+    //var level=[[".",".","."],["#",".","."],["#",".","."]]
+    var actors=[]
 
-    //alert(model._grid)
+    var squaresize=100
 
-    var gridX=level[0].length//model.cntCols()
-    var gridY=level.length//model.cntRows()
+    var gridX=model._grid.length//model.cntCols//level[0].length
+    var gridY=gridX//model.cntRows//level.length
 
     var width = window.innerWidth-20
     var height = window.innerHeight-20
@@ -26,9 +28,17 @@
         type: Phaser.AUTO,
         width: width,
         height: height,
+        physics: {
+            default: 'arcade',
+            arcade: {
+                gravity: {  },
+                debug: false
+            }
+        },
         scene: {
             preload: preload,
-            create: create
+            create: create,
+            update: update
         }
     };
 
@@ -38,16 +48,81 @@
     {
         //this.load.setBaseURL('http://labs.phaser.io');
 
-        this.load.image('mouse', 'Images/mouse.png');
-        this.load.image('.', 'Images/panel.png');
-        this.load.image('#', 'Images/obstacle.png');
-        this.load.image('cheese', 'Images/cheese.png');
+        this.load.image('Normal Mouse', 'Images/mouse.png');
+        this.load.image('Free Tile', 'Images/panel.png');
+        this.load.image('Obstacle Tile', 'Images/obstacle.png');
+        this.load.image('Cheese', 'Images/cheese.png');
+        this.load.image('Blue Mouse', 'Images/blue-mouse.png');
+        this.load.image('Blue Cheese', 'Images/blue-cheese.png');
+        this.load.image('Normal House', 'Images/house.png');
+        this.load.image('Blue House', 'Images/house.png');
+    }
+
+    function display_model(){
+        var tile_height = 800, tile_width = 800
+        /*for(var i = 0; i < model.cntRows; i += 1)
+            for(var j = 0; j < model.cntCols; j += 1){
+                //alert(model.queryTile(i, j).phaserTextureAlias)
+                this.physics.add.image(i * tile_height, j * tile_width, model.queryTile(i, j).phaserTextureAlias).setOrigin(0,0)
+            }*/
+        //var panel = this.add.image(0, 0, 'Free Tile').setScale(x,x).setOrigin(-1,-1);
     }
 
     function create ()
     {
-        var panel
+        
+
+
+        gamescreen = this.add.group();
+
+
         var x=height/(1200*gridY);
+        var y=width/(1200*gridX);
+        if(y<x) x=y
+        squaresize=800*x
+
+
+        var i=0
+        /*for(var a of model.actors){
+            //var actor=this.add.sprite(0,0,a.name).setOrigin(-a.position.column,-1-(height-200)/800-a.position.row);
+            var actor=this.add.sprite(0,0,model.actors[0].name).setOrigin(0,-1-(height-200)/800);
+            actor.displayHeight=x*800;
+            actor.displayWidth=x*800;
+            //actor.z=-100000;
+            actors[i]=[actor,a.x,a.y];
+            //gamescreen.add(actor);
+            i+=1
+        }*/
+        for (var i = gridX-1; i >= 0; i--) {
+            for (var j = gridY-1; j >= 0; j--) {
+                //var panel = this.add.image(0, 0, 'Free Tile').setScale(x,x).setOrigin(i-gridX+1,j-gridY-(height-200)/800);
+                var squareType = model.queryTile(gridY-j-1,gridX-i-1).phaserTextureAlias
+                //var squareType = //level[gridY-1-j][gridX-1-i]
+                var panel = this.add.image(0, 0, squareType).setScale(x,x).setOrigin(i-gridX+1,j-gridY-(height-200)/800);
+                gamescreen.add(panel);
+            }   
+        }
+
+        /*var mouse = this.physics.add.sprite(0, 0, 'mouse').setOrigin(0,-1-(height-200)/800);
+        mouse.displayHeight=x*800;
+        mouse.displayWidth=x*800;
+        mouse.z=-100000;
+        gamescreen.add(mouse)
+        var cheese = this.add.sprite(0, 0, 'cheese').setOrigin(-1,-2-(height-200)/800);
+        cheese.displayHeight=x*800;
+        cheese.displayWidth=x*800;
+
+        actors[0]=[mouse,0,0]
+        actors[1]=[cheese,1,1]//actor, current position, needed position*/
+
+        //gamescreen.sort();
+
+    }
+    function update()
+    {
+
+        var panel
+        /*var x=height/(1200*gridY);
         var y=width/(1200*gridX);
         if(y<x) x=y
         for (var i = gridX-1; i >= 0; i--) {
@@ -59,16 +134,24 @@
                     var panel = this.add.image(0, 0, squareType).setScale(x,x).setOrigin(i-gridX+1,j-gridY-(height-200)/800);
                 }
             }   
+        }*/
+
+        //for(var a in model._actors){
+            //var actor=this.add.sprite(0,0,a._name).setOrigin(-a._position.y,-1-(height-200)/800-a._position.x)
+        //}
+
+        /*var mouse = actors[0][0];
+        if(mouse.x<squaresize){
+            mouse.setVelocityX(100);
+        }else if(mouse.x==squaresize){
+            mouse.setVelocityX(0);
+        }else if(mouse.x>squaresize){
+            mouse.setVelocityX(-100);
         }
-
-        var mouse = this.add.sprite(0, 0, 'mouse').setOrigin(0,-1-(height-200)/800);
-        mouse.displayHeight=x*800;
-        mouse.displayWidth=x*800;
-        var cheese = this.add.sprite(0, 0, 'cheese').setOrigin(-1,-2-(height-200)/800);
-        cheese.displayHeight=x*800;
-        cheese.displayWidth=x*800;
-
-
+        if(Math.abs(mouse.x-squaresize)<2){
+            mouse.x=squaresize
+        }
+        var cheese = actors[1][0];*/
     }
     </script>
 
