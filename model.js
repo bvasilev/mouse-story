@@ -75,10 +75,26 @@ class Model {
     }
 
     this._level = fileData;
-    this._grid = this._parseGrid(fileData.grid);
-    this._initActors(fileData.actors);
-    this._initItems(fileData.items);
+    this._initLevel();
     return true;
+  }
+
+  /**
+   * Initialise level state once this._level is set to
+   * a valid level
+   */
+  _initLevel() {
+    this._grid = this._parseGrid(this._level.grid);
+    this._initActors(this._level.actors);
+    this._initItems(this._level.items);
+    this._placedItems = [];
+  }
+
+  /**
+   * Reset level to its original state.
+   */
+  resetLevel() {
+    this._initLevel();
   }
 
   /**
@@ -142,7 +158,7 @@ class Model {
    * @param {string[]} items
    */
   _initItems(items) {
-    this._items = items;
+    this._items = Array.from(items);
   }
 
   /**
@@ -287,7 +303,6 @@ class Model {
     if (x < 0 || y < 0 || x >= this.cntRows || y >= this.cntCols)
       throw Error("Tried to modify Tile outside of grid!");
 
-    console.log("Bing");
     this._grid[x][y] = this._charToTile(newTile);
   }
 
@@ -724,7 +739,7 @@ function phaserPreload() {
   // this.load.image("cheese", "Images/cheese.png");
 }
 
-// Testing script:
+//Testing script:
 // const m = new Model();
 // const res = m.readLevelFromFile("level3");
 // console.log(m._existsActorAtLocation(2, 2));
@@ -732,4 +747,6 @@ function phaserPreload() {
 // m.startGame();
 // console.log("Level read result:");
 // console.log(res);
+// console.log(m);
+// m.resetLevel();
 // console.log(m);
