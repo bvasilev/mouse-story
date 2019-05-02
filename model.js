@@ -38,7 +38,7 @@ class Model {
 
   /**
    * Returns the number of rows
-   * @return{int}
+   * @return{number}
    */
   get cntRows() {
     if (this._level != null) return this._level.grid_height;
@@ -47,7 +47,7 @@ class Model {
 
   /**
    * Returns the number of columns
-   * @return{int}
+   * @return{number}
    */
   get cntCols() {
     if (this._level != null) return this._level.grid_width;
@@ -112,10 +112,12 @@ class Model {
    * Sets up the list of actors from a given list.
    * @param {Object[]} actors - the list of actors
    * @param {string} actors.type - the type of the actor
-   * @param {int} actors.x - the x coordinate of the actor
-   * @param {int} actors.y - the y coordiante of the actor
+   * @param {number} actors.x - the x coordinate of the actor
+   * @param {number} actors.y - the y coordiante of the actor
    */
-  _parseActors(actors) {
+  _initActors(actors) {
+    this._actors = []; // Clear actor array
+    // Populate it with new actors
     for (const actor of actors) {
       this._addActor(actor);
     }
@@ -125,8 +127,8 @@ class Model {
    * Add an actor to the level
    * @param {Object} actor - the actor
    * @param {string} actor.type - the type of the actor
-   * @param {int} actor.x - the x coordinate of the actor
-   * @param {int} actor.y - the y coordiante of the actor
+   * @param {number} actor.x - the x coordinate of the actor
+   * @param {number} actor.y - the y coordiante of the actor
    */
   _addActor(actor) {
     const type = actor.type;
@@ -136,10 +138,10 @@ class Model {
   }
 
   /**
-   * Fills the list of items from the given string.
+   * Fills the list of items from the given list.
    * @param {string[]} items
    */
-  _parseItems(items) {
+  _initItems(items) {
     this._items = items;
   }
 
@@ -346,13 +348,25 @@ class Model {
   }
 
   /**
+   * Is there an actor currently occupying that position?
+   * @param {number} row - the row of the position in the grid
+   * @param {number} col - the column of the position in the grid
+   */
+  _existsActorAtLocation(row, col) {
+    for (const actor of this._actors) {
+      if (actor.position.row === row && actor.position.col === col) return true;
+    }
+    return false;
+  }
+
+  /**
    * Given an array of objects with coordinates and two coordiante points
    * return weather there is an object in array with coordinates (x,y)
    * @param {Object[]} array - array of objects
-   * @param {int} array.x - x coordiante of object
-   * @param {int} array.y - y coordiante of object
-   * @param {int} x - x coordinate to compare with
-   * @param {int} y - y coordiante to compare with
+   * @param {number} array.x - row coordiante of object
+   * @param {number} array.y - column coordiante of object
+   * @param {number} x - row coordinate to compare with
+   * @param {number} y - column coordiante to compare with
    */
   _existsAtLocation(array, x, y) {
     for (const element of array) {
@@ -366,10 +380,10 @@ class Model {
    * return the index of the first bject in array with coordinates (x,y) or -1
    * if there is none
    * @param {Object[]} array - array of objects
-   * @param {int} array.x - x coordiante of object
-   * @param {int} array.y - y coordiante of object
-   * @param {int} x - x coordinate to compare with
-   * @param {int} y - y coordiante to compare with
+   * @param {number} array.x - row coordiante of object
+   * @param {number} array.y - column coordiante of object
+   * @param {number} x - row coordinate to compare with
+   * @param {number} y - column coordiante to compare with
    */
   _getIndexOf(array, x, y) {
     for (var i = 0; i < this._placedItems.length; i++) {
@@ -547,17 +561,17 @@ class FollowingActor {
 class Point {
   /**
    * Constructs a point
-   * @param {int} [row=0] - the row of the point
-   * @param {int} [col=0] - the column of the point
+   * @param {number} [row=0] - the row of the point
+   * @param {number} [col=0] - the column of the point
    */
   constructor(row = 0, col = 0) {
-    var _row = row;
-    var _col = col;
+    this._row = row;
+    this._col = col;
   }
 
   /**
    * Gets the row of the point
-   * @returns {int}
+   * @returns {number}
    */
   get row() {
     return this._row;
@@ -565,16 +579,16 @@ class Point {
 
   /**
    * Gets the column of the point
-   * @returns {int}
+   * @returns {number}
    */
-  get column() {
+  get col() {
     return this._col;
   }
 
   /**
    * Creates a new point, at some offset from this point
-   * @param {int} dlin - The line offset
-   * @param {int} dcol - The column offset
+   * @param {number} dlin - The line offset
+   * @param {number} dcol - The column offset
    * @returns {Point}
    */
   makeAtOffset(dlin, dcol) {
