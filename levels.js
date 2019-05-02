@@ -53,7 +53,7 @@ const levels = {
   level3: {
     grid: ["....", "....", "...."],
     grid_width: 4,
-    grid_height: 4,
+    grid_height: 3,
     actors: [
       {
         type: "Normal Mouse",
@@ -62,8 +62,8 @@ const levels = {
       },
       {
         type: "House",
-        x: 3,
-        y: 0
+        x: 0,
+        y: 3
       },
       {
         type: "Cheese",
