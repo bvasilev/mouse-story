@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
+    <script src="levels.js"></script>
+    <script src="model.js"></script>
+</head>
+<body>
+
+    <script>
+
+    var model = new Model();
+
+    model.readLevelFromFile(2)
+
+    //var level=[[".",".","."],["#",".","."],["#",".","."]]
+    var actors=[]
+
+    var squaresize=100
+
+    var gridX=model.cntCols//model.cntCols//level[0].length
+    var gridY=model.cntRows//model.cntRows//level.length
+
+    var width = window.innerWidth-20
+    var height = window.innerHeight-20
+
+    var config = {
+        type: Phaser.AUTO,
+        width: width,
+        height: height,
+        physics: {
+            default: 'arcade',
+            arcade: {
+                gravity: {  },
+                debug: false
+            }
+        },
+        scene: {
+            preload: preload,
+            create: display_model,
+            update: update
+        }
+    };
+
+    var game = new Phaser.Game(config);
+
+    function preload ()
+    {
+    
+        this.load.image('Normal Mouse', 'assets/img/mouse.png');
+        this.load.image('Free Tile', 'assets/img/panel.png');
+        this.load.image('Obstacle Tile', 'assets/img/obstacle.png');
+        this.load.image('Cheese', 'assets/img/cheese.png');
+        this.load.image('Blue Mouse', 'assets/img/blue-mouse.png');
+        this.load.image('Blue Cheese', 'assets/img/blue-cheese.png');
+        this.load.image('House', 'assets/img/house.png');
+        this.load.image('Blue House', 'assets/img/blue-house.png');
+    }
+
+    function display_model ()
+    {
+        var x=height/(1200*gridY);
+        var y=width/(1200*gridX);
+        if(y<x) x=y
+        squaresize=800*x
+
+
+        for (var i = gridX-1; i >= 0; i--) {
+            for (var j = gridY-1; j >= 0; j--) {
+                var squareType = model.queryTile(gridY-j-1,gridX-i-1).phaserTextureAlias
+                var panel = this.add.image(0, 0, squareType).setScale(x,x).setOrigin(i-gridX+1,j-gridY-(height-200)/800);
+            }   
+        }
+        var i=0
+        for(var a of model.actors){
+            actors[i]=this.add.sprite(0,0,a.name).setScale(x,x).setOrigin(-a.position.row,-1-(height-200)/800-a.position.col);
+            actors[i].displayHeight=x*800;
+            actors[i].displayWidth=x*800;
+            i+=1
+        }
+    }
+    updating=true
+    function update()
+    {
+        if(updating){
+            updating=false
+            model.runStep();
+            setTimeout(function(){updating=true;
+            var i=0
+            for(var a of model.actors){
+                actors[i].setOrigin(-a.position.row,-1-(height-200)/800-a.position.col);
+                i+=1
+            }
+            },1000);
+            
+        }
+        //do{
+            //display_model()
+        //} while(model.runStep())
+    }
+    </script>
+
+</body>
+</html>

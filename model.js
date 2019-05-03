@@ -442,8 +442,10 @@ class Model {
     // 2. get movements
     for (const a of this._actors) {
       var target = a.shouldMove;
-      a.position = target;
-      this._grid[target.row][target.column].onEnter();
+      if(target){
+        a.position = target;
+        this._grid[target.row][target.col].onEnter();
+      }
     }
 
     // 3. put further needed actions here
@@ -526,9 +528,17 @@ class FollowingActor {
   }
 
   /**
+   * Returns model of actor
+   */
+  get model() {
+    return this._model;
+  }
+
+  /**
    * Returns if the game ought to terminate
    */
   get shouldTerminate() {
+    if(this._follows=="N/A") return false;
     var target = this.model.getByName(this._follows);
     return target.position === this.position;
   }
@@ -537,10 +547,18 @@ class FollowingActor {
    * Returns the place where we think we should move
    */
   get shouldMove() {
-    var dist = new Array(model.cntRows);
-    for (let a of dist) a = new Array(model.cntCols);
+    if(this._follows=="N/A") return false;
+    
+    /*DOES NOT WORK*/
+    
+    //var dist = new Array(model.cntRows);
+    //for (let a of dist) a = new Array(model.cntCols);
 
-    for (let a of dist) for (let b of a) b = 1000000000;
+    //for (let a of dist) for (let b of a) b = 1000000000;
+    
+    /****************/
+    
+    var dist = Array(model.cntCols).fill(Array(model.cntRows).fill(1000000000));
 
     // dist[i][j] = distance from my target
     // I will move so as to minimise distance
@@ -550,11 +568,11 @@ class FollowingActor {
     var queue = [target];
     while (queue.length > 0) {
       var current = queue.shift;
-      var current_dist = dist[current.row][current.column];
+      var current_dist = dist[current.row][current.col];
 
       for (let neighbour of current.getNeighbours(this.model)) {
-        if (dist[neighbour.row][neighbour.column] > current_dist + 1) {
-          dist[neighbour.row][neighbour.column] = current_dist + 1;
+        if (dist[neighbour.row][neighbour.col] > current_dist + 1) {
+          dist[neighbour.row][neighbour.col] = current_dist + 1;
           queue.push(neighbour);
         }
       }
@@ -636,7 +654,7 @@ class Point {
     var dxs = [0, -1, 0, 1];
     var dys = [1, 0, -1, 0];
     return dxs
-      .map((x, i) => new this.makeAtOffset(x, dys[i]))
+      .map((x, i) => this.makeAtOffset(x, dys[i]))
       .filter(x => x.isWalkable(m));
   }
 }
