@@ -547,23 +547,12 @@ class FollowingActor {
    * Returns the place where we think we should move
    */
   get shouldMove() {
-    if(this._follows=="N/A") return false;
-    
-    /*DOES NOT WORK*/
-    
-    //var dist = new Array(model.cntRows);
-    //for (let a of dist) a = new Array(model.cntCols);
-
-    //for (let a of dist) for (let b of a) b = 1000000000;
-    
-    /****************/
-    
     var dist = Array(model.cntCols).fill(Array(model.cntRows).fill(1000000000));
 
     // dist[i][j] = distance from my target
     // I will move so as to minimise distance
 
-    var target = this.model.getByName(this._follows);
+    var target = this.model.getByName(this._follows).position;
 
     var queue = [target];
     while (queue.length > 0) {
