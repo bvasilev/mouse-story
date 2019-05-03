@@ -11,15 +11,15 @@
 
     var model = new Model();
 
-    model.readLevelFromFile(5)
+    model.readLevelFromFile(2)
 
     //var level=[[".",".","."],["#",".","."],["#",".","."]]
     var actors=[]
 
     var squaresize=100
 
-    var gridX=model._grid.length//model.cntCols//level[0].length
-    var gridY=gridX//model.cntRows//level.length
+    var gridX=model.cntCols//model.cntCols//level[0].length
+    var gridY=model.cntRows//model.cntRows//level.length
 
     var width = window.innerWidth-20
     var height = window.innerHeight-20
@@ -53,8 +53,8 @@
         this.load.image('Cheese', 'assets/img/cheese.png');
         this.load.image('Blue Mouse', 'assets/img/blue-mouse.png');
         this.load.image('Blue Cheese', 'assets/img/blue-cheese.png');
-        this.load.image('Normal House', 'assets/img/house.png');
-        this.load.image('Blue House', 'assets/img/house.png');
+        this.load.image('House', 'assets/img/house.png');
+        this.load.image('Blue House', 'assets/img/blue-house.png');
     }
 
     function display_model ()
@@ -71,23 +71,32 @@
                 var panel = this.add.image(0, 0, squareType).setScale(x,x).setOrigin(i-gridX+1,j-gridY-(height-200)/800);
             }   
         }
-
+        var i=0
         for(var a of model.actors){
-            var actor=this.add.sprite(0,0,model.actors[0].name).setOrigin(0,-1-(height-200)/800);
-            actor.displayHeight=x*800;
-            actor.displayWidth=x*800;
-            actor.z=-100000;
-            actors[i]=[actor,a.x,a.y];
+            actors[i]=this.add.sprite(0,0,a.name).setScale(x,x).setOrigin(-a.position.row,-1-(height-200)/800-a.position.col);
+            actors[i].displayHeight=x*800;
+            actors[i].displayWidth=x*800;
             i+=1
         }
     }
-
+    updating=true
     function update()
     {
-        do{
-            setTimeout(function(){},1000);
-            display_model()
-        } while(model.runStep())
+        if(updating){
+            updating=false
+            model.runStep();
+            setTimeout(function(){updating=true;
+            var i=0
+            for(var a of model.actors){
+                actors[i].setOrigin(-a.position.row,-1-(height-200)/800-a.position.col);
+                i+=1
+            }
+            },1000);
+            
+        }
+        //do{
+            //display_model()
+        //} while(model.runStep())
     }
     </script>
 
