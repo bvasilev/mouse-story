@@ -322,7 +322,12 @@ class Model {
 
     if (!this._canPlaceItemHere(x, y, item)) return false;
 
-    this._placedItems.push({ type: item, x: x, y: y }); // Put in _placedItems
+    this._placedItems.push({
+      type: item,
+      x: x,
+      y: y,
+      phaserTextureAlias: item
+    }); // Put in _placedItems
     this._items.splice(this._items.indexOf(item), 1); // Remove from inventory
 
     return true;
@@ -433,21 +438,38 @@ class Model {
    * 2. Check if all actions are valid.
    * 3. Move actors and reflect any interactions
    *  (e.g. Mouse eats Cheese, Cat eats Mouse, etc.)
-   * @returns {boolean} - true if game is not over, false otherwise
+   * @returns {boolean  } - true if game is over, false otherwise
    */
   runStep() {
     // 1. check if terminate
     for (const a of this._actors) if (a.shouldTerminate) return true;
 
     // 2. get movements
+
     for (const a of this._actors) {
       var target = a.shouldMove;
-      a.position = target;
-      this._grid[target.row][target.column].onEnter();
+      if (target) {
+        a.position = target;
+        this._grid[target.row][target.col].onEnter();
+      }
     }
 
     // 3. put further needed actions here
+    var final_actors = this._actors;
 
+    for (let a in actors)
+      final_actors = final_actors.filter(
+        x => x.name != a.eats || x.position != a.position
+      );
+
+    this._actors = final_actors;
+
+    for (let a in actors)
+      if (
+        !actors.filter(x => x.name == a.dies && x.position == a.position)
+          .length == 0
+      )
+        return true;
     return false;
   }
 }
@@ -467,13 +489,30 @@ class FollowingActor {
    * that tries to follow any actor
    * with name f. Upon reaching
    * The actor exists
-   * within model m, at position p
+   * within model m, at position p,
+   * that eats actors from e
+   * and that dies if it eats d
    */
-  constructor(n, f, m, p) {
+  constructor(n, f, m, p, e, d) {
     this._name = n;
+    this._textureAlias = n; // IMPORTANT - assumes names are same as types
     this._follows = f;
     this._model = m;
     this._position = p;
+    this._eats = e;
+    this._dies = d;
+  }
+
+  // if this actor is over one of these actors,
+  // then does actors dissapear.
+  get eats() {
+    return this._eats;
+  }
+
+  // if this actor is over one of these actors,
+  // then the game finishes.
+  get dies() {
+    return this._dies;
   }
 
   /** Get path to texture file.
@@ -487,20 +526,7 @@ class FollowingActor {
    * @returns {string} - texture alias in phaser
    */
   get phaserTextureAlias() {
-    switch (this._name) {
-      case "Normal Mouse":
-        return "Normal Mouse";
-      case "Cheese":
-        return "Cheese";
-      case "House":
-        return "House";
-      case "Blue Mouse":
-        return "Blue Mouse";
-      case "Blue Cheese":
-        return "Blue Cheese";
-      default:
-        throw Error("Actor type " + this._name + " has no texture file!");
-    }
+    return this._textureAlias;
   }
 
   /**
@@ -526,9 +552,17 @@ class FollowingActor {
   }
 
   /**
+   * Returns model of actor
+   */
+  get model() {
+    return this._model;
+  }
+
+  /**
    * Returns if the game ought to terminate
    */
   get shouldTerminate() {
+    if (this._follows == "N/A") return false;
     var target = this.model.getByName(this._follows);
     return target.position === this.position;
   }
@@ -537,35 +571,43 @@ class FollowingActor {
    * Returns the place where we think we should move
    */
   get shouldMove() {
-    var dist = new Array(model.cntRows);
-    for (let a of dist) a = new Array(model.cntCols);
+    if (this._follows == "N/A") {
+      return this.position;
+    }
 
-    for (let a of dist) for (let b of a) b = 1000000000;
+    var dist = Array(this.model.cntCols).fill(0);
+    for (let i = 0; i < this.model.cntCols; i++)
+      dist[i] = Array(this.model.cntRows).fill(1000000000);
 
     // dist[i][j] = distance from my target
     // I will move so as to minimise distance
 
-    var target = this.model.getByName(this._follows);
+    var target = this.model.getByName(this._follows).position;
+    if (this.position == target.position) return this.position;
+
+    dist[target.row][target.col] = 0;
 
     var queue = [target];
     while (queue.length > 0) {
-      var current = queue.shift;
-      var current_dist = dist[current.row][current.column];
+      var current = queue.shift();
+      var current_dist = dist[current.row][current.col];
 
       for (let neighbour of current.getNeighbours(this.model)) {
-        if (dist[neighbour.row][neighbour.column] > current_dist + 1) {
-          dist[neighbour.row][neighbour.column] = current_dist + 1;
+        if (dist[neighbour.row][neighbour.col] > current_dist + 1) {
+          dist[neighbour.row][neighbour.col] = current_dist + 1;
           queue.push(neighbour);
         }
       }
     }
 
-    var my_neighbours = this.position.getNeighbours(this._model);
+    var my_neighbours = [];
+    my_neighbours = this.position.getNeighbours(this._model);
+    my_neighbours.push(this.position);
 
     if (my_neighbours.length == 0) return this.position;
     else
       return my_neighbours.reduce(function(prev, curr) {
-        return dist[prev.row][prev.column] < dist[curr.row][curr.column]
+        return dist[prev.row][prev.col] < dist[curr.row][curr.col]
           ? prev
           : curr;
       });
@@ -623,7 +665,7 @@ class Point {
       this.col >= 0 &&
       this.row < m.cntRows &&
       this.col < m.cntCols &&
-      m.queryTile(this.row, this.col).canEnter
+      m.queryTile(this.row, this.col).canEnter()
     );
   }
 
@@ -636,7 +678,7 @@ class Point {
     var dxs = [0, -1, 0, 1];
     var dys = [1, 0, -1, 0];
     return dxs
-      .map((x, i) => new this.makeAtOffset(x, dys[i]))
+      .map((x, i) => this.makeAtOffset(x, dys[i]))
       .filter(x => x.isWalkable(m));
   }
 }
