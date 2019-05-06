@@ -322,7 +322,12 @@ class Model {
 
     if (!this._canPlaceItemHere(x, y, item)) return false;
 
-    this._placedItems.push({ type: item, x: x, y: y }); // Put in _placedItems
+    this._placedItems.push({
+      type: item,
+      x: x,
+      y: y,
+      phaserTextureAlias: item
+    }); // Put in _placedItems
     this._items.splice(this._items.indexOf(item), 1); // Remove from inventory
 
     return true;
@@ -442,7 +447,7 @@ class Model {
     // 2. get movements
     for (const a of this._actors) {
       var target = a.shouldMove;
-      if(target){
+      if (target) {
         a.position = target;
         this._grid[target.row][target.col].onEnter();
       }
@@ -473,6 +478,7 @@ class FollowingActor {
    */
   constructor(n, f, m, p) {
     this._name = n;
+    this._textureAlias = n; // IMPORTANT: name should be the type of the actor
     this._follows = f;
     this._model = m;
     this._position = p;
@@ -489,20 +495,7 @@ class FollowingActor {
    * @returns {string} - texture alias in phaser
    */
   get phaserTextureAlias() {
-    switch (this._name) {
-      case "Normal Mouse":
-        return "Normal Mouse";
-      case "Cheese":
-        return "Cheese";
-      case "House":
-        return "House";
-      case "Blue Mouse":
-        return "Blue Mouse";
-      case "Blue Cheese":
-        return "Blue Cheese";
-      default:
-        throw Error("Actor type " + this._name + " has no texture file!");
-    }
+    return this._textureAlias;
   }
 
   /**
@@ -538,7 +531,7 @@ class FollowingActor {
    * Returns if the game ought to terminate
    */
   get shouldTerminate() {
-    if(this._follows=="N/A") return false;
+    if (this._follows == "N/A") return false;
     var target = this.model.getByName(this._follows);
     return target.position === this.position;
   }
@@ -747,8 +740,8 @@ function phaserPreload() {
 }
 
 //Testing script:
-// const m = new Model();
-// const res = m.readLevelFromFile("level3");
+//const m = new Model();
+//const res = m.readLevelFromFile("level1");
 // console.log(m._existsActorAtLocation(2, 2));
 // m.placeItem(2, 3, "#");
 // m.startGame();
@@ -757,3 +750,7 @@ function phaserPreload() {
 // console.log(m);
 // m.resetLevel();
 // console.log(m);
+
+//var t = { x: 1, y: 2, type: "test" };
+//var q = { x: 4, y: 5, type: "q" };
+//console.log(t);
