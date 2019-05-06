@@ -438,13 +438,14 @@ class Model {
    * 2. Check if all actions are valid.
    * 3. Move actors and reflect any interactions
    *  (e.g. Mouse eats Cheese, Cat eats Mouse, etc.)
-   * @returns {boolean} - true if game is not over, false otherwise
+   * @returns {boolean  } - true if game is over, false otherwise
    */
   runStep() {
     // 1. check if terminate
     for (const a of this._actors) if (a.shouldTerminate) return true;
 
     // 2. get movements
+
     for (const a of this._actors) {
       var target = a.shouldMove;
       if (target) {
@@ -454,7 +455,21 @@ class Model {
     }
 
     // 3. put further needed actions here
+    var final_actors = this._actors;
 
+    for (let a in actors)
+      final_actors = final_actors.filter(
+        x => x.name != a.eats || x.position != a.position
+      );
+
+    this._actors = final_actors;
+
+    for (let a in actors)
+      if (
+        !actors.filter(x => x.name == a.dies && x.position == a.position)
+          .length == 0
+      )
+        return true;
     return false;
   }
 }
@@ -474,14 +489,30 @@ class FollowingActor {
    * that tries to follow any actor
    * with name f. Upon reaching
    * The actor exists
-   * within model m, at position p
+   * within model m, at position p,
+   * that eats actors from e
+   * and that dies if it eats d
    */
-  constructor(n, f, m, p) {
+  constructor(n, f, m, p, e, d) {
     this._name = n;
-    this._textureAlias = n; // IMPORTANT: name should be the type of the actor
+    this._textureAlias = n; // IMPORTANT - assumes names are same as types
     this._follows = f;
     this._model = m;
     this._position = p;
+    this._eats = e;
+    this._dies = d;
+  }
+
+  // if this actor is over one of these actors,
+  // then does actors dissapear.
+  get eats() {
+    return this._eats;
+  }
+
+  // if this actor is over one of these actors,
+  // then the game finishes.
+  get dies() {
+    return this._dies;
   }
 
   /** Get path to texture file.
@@ -540,16 +571,25 @@ class FollowingActor {
    * Returns the place where we think we should move
    */
   get shouldMove() {
-    var dist = Array(model.cntCols).fill(Array(model.cntRows).fill(1000000000));
+    if (this._follows == "N/A") {
+      return this.position;
+    }
+
+    var dist = Array(this.model.cntCols).fill(0);
+    for (let i = 0; i < this.model.cntCols; i++)
+      dist[i] = Array(this.model.cntRows).fill(1000000000);
 
     // dist[i][j] = distance from my target
     // I will move so as to minimise distance
 
     var target = this.model.getByName(this._follows).position;
+    if (this.position == target.position) return this.position;
+
+    dist[target.row][target.col] = 0;
 
     var queue = [target];
     while (queue.length > 0) {
-      var current = queue.shift;
+      var current = queue.shift();
       var current_dist = dist[current.row][current.col];
 
       for (let neighbour of current.getNeighbours(this.model)) {
@@ -560,12 +600,14 @@ class FollowingActor {
       }
     }
 
-    var my_neighbours = this.position.getNeighbours(this._model);
+    var my_neighbours = [];
+    my_neighbours = this.position.getNeighbours(this._model);
+    my_neighbours.push(this.position);
 
     if (my_neighbours.length == 0) return this.position;
     else
       return my_neighbours.reduce(function(prev, curr) {
-        return dist[prev.row][prev.column] < dist[curr.row][curr.column]
+        return dist[prev.row][prev.col] < dist[curr.row][curr.col]
           ? prev
           : curr;
       });
@@ -623,7 +665,7 @@ class Point {
       this.col >= 0 &&
       this.row < m.cntRows &&
       this.col < m.cntCols &&
-      m.queryTile(this.row, this.col).canEnter
+      m.queryTile(this.row, this.col).canEnter()
     );
   }
 
@@ -740,8 +782,8 @@ function phaserPreload() {
 }
 
 //Testing script:
-//const m = new Model();
-//const res = m.readLevelFromFile("level1");
+// const m = new Model();
+// const res = m.readLevelFromFile("level3");
 // console.log(m._existsActorAtLocation(2, 2));
 // m.placeItem(2, 3, "#");
 // m.startGame();
@@ -750,7 +792,3 @@ function phaserPreload() {
 // console.log(m);
 // m.resetLevel();
 // console.log(m);
-
-//var t = { x: 1, y: 2, type: "test" };
-//var q = { x: 4, y: 5, type: "q" };
-//console.log(t);
