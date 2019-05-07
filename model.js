@@ -5,7 +5,7 @@
 //let levels = require("./levels.js");
 class Model {
   constructor() {
-    this._meta = levels.metadata;
+    this._meta = levels[7];
     this._grid = []; // The level grid - a matrix
     this._actors = []; // Actors on the grid, specified by type and coordinates
     this._items = []; // Items the player has, specified by type (string)
@@ -150,7 +150,9 @@ class Model {
     const type = actor.type;
     const follows = this._meta.actorTypes[type];
     const position = new Point(actor.x, actor.y);
-    this._actors.push(new FollowingActor(type, follows, this, position));
+    const eats = actor.eats;
+    const dies = actor.dies;
+    this._actors.push(new FollowingActor(type, follows, this, position, eats, dies));
   }
 
   /**
@@ -322,12 +324,7 @@ class Model {
 
     if (!this._canPlaceItemHere(x, y, item)) return false;
 
-    this._placedItems.push({
-      type: item,
-      x: x,
-      y: y,
-      phaserTextureAlias: item
-    }); // Put in _placedItems
+    this._placedItems.push({ type: item, x: x, y: y }); // Put in _placedItems
     this._items.splice(this._items.indexOf(item), 1); // Remove from inventory
 
     return true;
@@ -414,6 +411,7 @@ class Model {
     return -1;
   }
 
+  
   /**
    * Once all items are placed - put them on the game grid.
    * @throws {Error} - if no level is loaded
@@ -445,10 +443,10 @@ class Model {
     for (const a of this._actors) if (a.shouldTerminate) return true;
 
     // 2. get movements
-
+    
     for (const a of this._actors) {
       var target = a.shouldMove;
-      if (target) {
+      if(target){
         a.position = target;
         this._grid[target.row][target.col].onEnter();
       }
@@ -457,18 +455,13 @@ class Model {
     // 3. put further needed actions here
     var final_actors = this._actors;
 
-    for (let a in actors)
-      final_actors = final_actors.filter(
-        x => x.name != a.eats || x.position != a.position
-      );
-
+    for(let a of final_actors)
+      final_actors = final_actors.filter(x => x.name != a.eats || x.position.row != a.position.row || x.position.col != a.position.col)
+    
     this._actors = final_actors;
 
-    for (let a in actors)
-      if (
-        !actors.filter(x => x.name == a.dies && x.position == a.position)
-          .length == 0
-      )
+    for(let a of final_actors)
+      if(!final_actors.filter(x => x.name == a.dies && x.position == a.position).length == 0)
         return true;
     return false;
   }
@@ -495,7 +488,6 @@ class FollowingActor {
    */
   constructor(n, f, m, p, e, d) {
     this._name = n;
-    this._textureAlias = n; // IMPORTANT - assumes names are same as types
     this._follows = f;
     this._model = m;
     this._position = p;
@@ -505,13 +497,13 @@ class FollowingActor {
 
   // if this actor is over one of these actors,
   // then does actors dissapear.
-  get eats() {
+  get eats(){
     return this._eats;
   }
 
   // if this actor is over one of these actors,
   // then the game finishes.
-  get dies() {
+  get dies(){
     return this._dies;
   }
 
@@ -526,7 +518,20 @@ class FollowingActor {
    * @returns {string} - texture alias in phaser
    */
   get phaserTextureAlias() {
-    return this._textureAlias;
+    switch (this._name) {
+      case "Normal Mouse":
+        return "Normal Mouse";
+      case "Cheese":
+        return "Cheese";
+      case "House":
+        return "House";
+      case "Blue Mouse":
+        return "Blue Mouse";
+      case "Blue Cheese":
+        return "Blue Cheese";
+      default:
+        throw Error("Actor type " + this._name + " has no texture file!");
+    }
   }
 
   /**
@@ -562,7 +567,7 @@ class FollowingActor {
    * Returns if the game ought to terminate
    */
   get shouldTerminate() {
-    if (this._follows == "N/A") return false;
+    if(this._follows=="N/A") return false;
     var target = this.model.getByName(this._follows);
     return target.position === this.position;
   }
@@ -571,20 +576,21 @@ class FollowingActor {
    * Returns the place where we think we should move
    */
   get shouldMove() {
-    if (this._follows == "N/A") {
+    if(this._follows=="N/A"){
       return this.position;
     }
 
     var dist = Array(this.model.cntCols).fill(0);
-    for (let i = 0; i < this.model.cntCols; i++)
-      dist[i] = Array(this.model.cntRows).fill(1000000000);
+    for(let i = 0; i < this.model.cntCols; i++)
+      dist[i] = Array(this.model.cntRows).fill(1000000000)
 
     // dist[i][j] = distance from my target
     // I will move so as to minimise distance
 
     var target = this.model.getByName(this._follows).position;
-    if (this.position == target.position) return this.position;
-
+    if(this.position == target.position)
+      return this.position;
+    
     dist[target.row][target.col] = 0;
 
     var queue = [target];
@@ -602,7 +608,8 @@ class FollowingActor {
 
     var my_neighbours = [];
     my_neighbours = this.position.getNeighbours(this._model);
-    my_neighbours.push(this.position);
+    my_neighbours.push(this.position)
+
 
     if (my_neighbours.length == 0) return this.position;
     else
@@ -613,6 +620,8 @@ class FollowingActor {
       });
   }
 }
+
+
 
 /**
  * Represents an immutable point the tile grid
