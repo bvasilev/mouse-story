@@ -40,7 +40,7 @@
                 }
             },
             scene: [LevelSelect, {
-                preload: preload,
+                preload: phaserPreload,
                 create: display_model,
                 update: update,
                 key: 'display',
@@ -98,8 +98,6 @@
             var oldY = [];
 
             for (var item of model.items) {
-                if (item == "#")
-                    item = "Obstacle Tile";
                 items[i] = this.add.sprite(width - squaresize, (i + 1 / 2) * squaresize, item).setScale(x, x);
                 items[i].displayHeight = x * 800;
                 items[i].displayWidth = x * 800;
@@ -130,7 +128,16 @@
                 var gridCol = gameObject.y / squaresize;
 
                 if (gridRow <= gridX && gridCol <= gridY)
-                    model.placeItem(gridRow, gridCol, gameObject.texture.key);
+                   model.placeItem(gridRow, gridCol, gameObject.texture.key);
+
+                // Suggestion: make code something like
+                // If couldn't place item
+                /* if(!model.placeItem(gridRow, gridCol, gameBoject.texture.key)){
+                  // Return item to its original position.
+                  // Doesn't matter if you call it from outside the level
+                  // Since placeItem will return false if the location is outside
+                  // of the grid boundary or there was some other item there.
+                } */
 
                 else
                 if (gameObject.x >= width - 300)
