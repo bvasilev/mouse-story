@@ -5,7 +5,7 @@
 //let levels = require("./levels.js");
 class Model {
   constructor() {
-    this._meta = levels[7];
+    this._meta = levels.metadata;
     this._grid = []; // The level grid - a matrix
     this._actors = []; // Actors on the grid, specified by type and coordinates
     this._items = []; // Items the player has, specified by type (string)
@@ -775,17 +775,17 @@ class ObstacleTile {
  * Preload function for the phaser game.
  * Use this in the phaser config when creating the game.
  */
-function phaserPreload() {
-  this.load.image("Normal Mouse", "assets/img/mouse.png");
-  this.load.image("Free Tile", "assets/img/panel.png");
-  this.load.image("Obstacle Tile", "assets/img/obstacle.png");
-  this.load.image("#", "assets/img/obstacle.png");
-  this.load.image("Cheese", "assets/img/cheese.png");
-  this.load.image("Blue Mouse", "assets/img/blue-mouse.png");
-  this.load.image("Blue Cheese", "assets/img/blue-cheese.png");
-  this.load.image("House", "assets/img/house.png");
-  this.load.image("Blue House", "assets/img/blue-house.png");
-  this.load.image("Inventory", "assets/img/Inventory.png");
+function phaserPreload(scene) {
+  scene.load.image("Normal Mouse", "assets/img/mouse.png");
+  scene.load.image("Free Tile", "assets/img/panel.png");
+  scene.load.image("Obstacle Tile", "assets/img/obstacle.png");
+  scene.load.image("#", "assets/img/obstacle.png");
+  scene.load.image("Cheese", "assets/img/cheese.png");
+  scene.load.image("Blue Mouse", "assets/img/blue-mouse.png");
+  scene.load.image("Blue Cheese", "assets/img/blue-cheese.png");
+  scene.load.image("House", "assets/img/house.png");
+  scene.load.image("Blue House", "assets/img/blue-house.png");
+  scene.load.image("Inventory", "assets/img/Inventory.png");
   // Misc
   // this.load.image("mouse", "Images/mouse.png");
   // this.load.image(".", "Images/panel.png");

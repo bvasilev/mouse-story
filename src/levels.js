@@ -551,4 +551,13 @@ var metadata=
 
 }
 
-var levels = [level1, level2, level3, level4, level5, level6, level7,metadata];
+var levels = {
+  level1: level1,
+  level2: level2,
+  level3: level3,
+  level4: level4,
+  level5: level5,
+  level6: level6,
+  level7: level7,
+  metadata: metadata,
+};

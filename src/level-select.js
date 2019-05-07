@@ -16,7 +16,9 @@ class LevelSelect extends Phaser.Scene {
         var $this = this;
 
         var page = 1;
-        var levelCount = 18; //levels.length - 1
+        var levelCount = Object.keys(levels).filter(function(key) {
+            return key.indexOf('level') === 0;
+        }).length;
         var pageButtonCount = Math.floor((width - (2*75)) / 200);
         var pageCount = Math.ceil(levelCount/pageButtonCount);
 
@@ -58,7 +60,7 @@ class LevelSelect extends Phaser.Scene {
                     .setInteractive()
                     .on('pointerdown', function (ev) {
                         model.readLevelFromFile(this.name);
-                        $this.scene.start('display');
+                        $this.scene.start('displayModel');
                     }).setName('level' + i);
 
                 selector.add(button);
