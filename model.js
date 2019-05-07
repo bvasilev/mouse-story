@@ -744,7 +744,8 @@ class ObstacleTile {
    * @returns {string} - path to texture file
    */
   get phaserTextureAlias() {
-    return "Obstacle Tile";
+    //return "Obstacle Tile";
+    return "#";
   }
 
   /**
@@ -775,14 +776,16 @@ class ObstacleTile {
  * Use this in the phaser config when creating the game.
  */
 function phaserPreload() {
-  this.load.image("Free Tile", "assets/img/free_tile.png");
-  this.load.image("Obstacle Tile", "assets/img/obstacle_tile.png");
-
-  this.load.image("Normal Mouse", "assets/img/normal_mouse.png");
+  this.load.image("Normal Mouse", "assets/img/mouse.png");
+  this.load.image("Free Tile", "assets/img/panel.png");
+  this.load.image("Obstacle Tile", "assets/img/obstacle.png");
+  this.load.image("#", "assets/img/obstacle.png");
   this.load.image("Cheese", "assets/img/cheese.png");
+  this.load.image("Blue Mouse", "assets/img/blue-mouse.png");
+  this.load.image("Blue Cheese", "assets/img/blue-cheese.png");
   this.load.image("House", "assets/img/house.png");
-  this.load.image("Blue Mouse", "assets/img/blue_mouse.png");
-  this.load.image("Blue Cheese", "assets/img/blue_cheese.png");
+  this.load.image("Blue House", "assets/img/blue-house.png");
+  this.load.image("Inventory", "assets/img/Inventory.png");
   // Misc
   // this.load.image("mouse", "Images/mouse.png");
   // this.load.image(".", "Images/panel.png");

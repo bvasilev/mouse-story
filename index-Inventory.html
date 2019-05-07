@@ -4,6 +4,7 @@
 <head>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
     <script src="levels.js"></script>
+    <script src="level-select.js"></script>
     <script src="model.js"></script>
     <!-- <script src="optionsmenu.js"></script> -->
 </head>
@@ -13,7 +14,7 @@
     <script>
         var model = new Model();
 
-        model.readLevelFromFile('level3')
+        //model.readLevelFromFile('level3');
 
         //var level=[[".",".","."],["#",".","."],["#",".","."]]
         var actors = []
@@ -21,8 +22,8 @@
 
         var squaresize = 100
 
-        var gridX = model.cntCols //model.cntCols//level[0].length
-        var gridY = model.cntRows //model.cntRows//level.length
+        //var gridX = model.cntCols //model.cntCols//level[0].length
+        //var gridY = model.cntRows //model.cntRows//level.length
 
         var width = window.innerWidth - 20
         var height = window.innerHeight - 20
@@ -38,14 +39,19 @@
                     debug: false
                 }
             },
-            scene: {
-                preload: preload,
+            scene: [LevelSelect, {
+                preload: phaserPreload,
                 create: display_model,
-                update: update
-            }
+                update: update,
+                key: 'display',
+            }]
         };
 
+
+
         var game = new Phaser.Game(config);
+
+
 
         function preload() {
 
@@ -61,11 +67,13 @@
         }
 
         function display_model() {
+            var gridX = model.cntCols;
+            var gridY = model.cntRows;
+
             var x = height / (1200 * gridY);
             var y = width / (1200 * gridX);
             if (y < x) x = y
             squaresize = 800 * x
-
 
             for (var i = gridX - 1; i >= 0; i--) {
                 for (var j = gridY - 1; j >= 0; j--) {
@@ -90,8 +98,6 @@
             var oldY = [];
 
             for (var item of model.items) {
-                if (item == "#")
-                    item = "Obstacle Tile";
                 items[i] = this.add.sprite(width - squaresize, (i + 1 / 2) * squaresize, item).setScale(x, x);
                 items[i].displayHeight = x * 800;
                 items[i].displayWidth = x * 800;
@@ -122,7 +128,16 @@
                 var gridCol = gameObject.y / squaresize;
 
                 if (gridRow <= gridX && gridCol <= gridY)
-                    model.placeItem(gridRow, gridCol, gameObject.texture.key);
+                   model.placeItem(gridRow, gridCol, gameObject.texture.key);
+
+                // Suggestion: make code something like
+                // If couldn't place item
+                /* if(!model.placeItem(gridRow, gridCol, gameBoject.texture.key)){
+                  // Return item to its original position.
+                  // Doesn't matter if you call it from outside the level
+                  // Since placeItem will return false if the location is outside
+                  // of the grid boundary or there was some other item there.
+                } */
 
                 else
                 if (gameObject.x >= width - 300)
