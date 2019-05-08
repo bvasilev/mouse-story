@@ -39,58 +39,44 @@ class DisplayModel extends Phaser.Scene {
 
         var invwidth = width / 260;
         var invheight = height / 425;
-        this.add.image(width - 200, 0, 'Inventory').setScale(invheight, invwidth);
-        var i = 0
-
-        var oldX = [];
-        var oldY = [];
-
+        this.add.image(width - squaresize / 2, 0, 'Inventory').setScale(invheight / 2, invwidth);
+        var i = 0;
+        var prevX;
+        var prevY;
         for (var item of model.items) {
-            this.items[i] = this.add.sprite(width - squaresize, (i + 1 / 2) * squaresize, item).setScale(this.x, this.x);
+            this.items[i] = this.add.sprite(width - squaresize / 2, (i + 1 / 2) * squaresize, item).setScale(this.x, this.x);
             this.items[i].displayHeight = this.x * 800;
             this.items[i].displayWidth = this.x * 800;
             this.items[i].setInteractive();
             this.input.setDraggable(this.items[i]);
-            console.log(this.items[i]);
             i += 1;
         }
         this.input.dragDistanceThreshold = 16;
 
-        var prevX
-        var prevY
+
         this.input.on('drag', function(pointer, gameObject, dragX, dragY) {
-            var gridRow = gameObject.x / squaresize;
-            var gridCol = gameObject.y / squaresize;
-            if (gridRow <= gridX && gridCol <= gridY) {
-                prevX = gridRow;
-                prevY = gridCol;
-            }
+
             gameObject.x = dragX;
             gameObject.y = dragY;
 
 
         });
+        var j = i - 1;
         this.input.on('dragend', function(pointer, gameObject) {
 
-            var gridRow = gameObject.x / squaresize;
-            var gridCol = gameObject.y / squaresize;
+            var gridRow = Math.floor(gameObject.y / squaresize) - 1;
+            var gridCol = Math.floor(gameObject.x / squaresize);
+            var isPlaced = model.placeItem(gridRow, gridCol, gameObject.texture.key)
+            console.log(isPlaced);
 
-            if (gridRow <= gridX && gridCol <= gridY)
-                model.placeItem(gridRow, gridCol, gameObject.texture.key);
+            if (!isPlaced) {
+                gameObject.x = width - squaresize / 2;
+                gameObject.y = (j + 1 / 2) * squaresize;
+                j = (j + 1) % i;
 
-            // Suggestion: make code something like
-            // If couldn't place item
-            /* if(!model.placeItem(gridRow, gridCol, gameBoject.texture.key)){
-              // Return item to its original position.
-              // Doesn't matter if you call it from outside the level
-              // Since placeItem will return false if the location is outside
-              // of the grid boundary or there was some other item there.
-            } */
-
-            else
-            if (gameObject.x >= width - 300)
-            // Find a way to
-                model.removeItem(prevX, prevY, gameObject.texture.key);
+            } else {
+                this.actors.push(gameObject);
+            }
 
 
         });
