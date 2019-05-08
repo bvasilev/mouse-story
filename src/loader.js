@@ -29,14 +29,14 @@ class Loader {
     function preload() {
         //this.load.setBaseURL('http://labs.phaser.io');
 
-        this.load.image('mouse', 'Images/mouse.png');
-        this.load.image('panel', 'Images/panel.jpg');
-        this.load.image('free_tile', 'assets/free_tile.png');
-        this.load.image('obstacle_tile', 'assets/obstacle_tile.png');
-        this.load.image('blue_cheese', 'assets/blue_cheese.png');
-        this.load.image('cheese', 'assets/cheese.png');
-        this.load.image('normal_mouse', 'assets/normal_mouse.png');
-        this.load.image('house', 'assets/house.png');
+        this.load.image('mouse', 'assets/img/mouse.png');
+        this.load.image('panel', 'assets/img/panel.jpg');
+        this.load.image('free_tile', 'assets/img/free_tile.png');
+        this.load.image('obstacle_tile', 'assets/img/obstacle_tile.png');
+        this.load.image('blue_cheese', 'assets/img/blue_cheese.png');
+        this.load.image('cheese', 'assets/img/cheese.png');
+        this.load.image('normal_mouse', 'assets/img/normal_mouse.png');
+        this.load.image('house', 'assets/img/house.png');
 
     }
 
@@ -50,7 +50,7 @@ class Loader {
             for (var j = gridY - 1; j >= 0; j--) {
                 var tile = this.model.queryTile(i, j);
                 var image_path = tile.texturePath();
-                if (image_path == "/assets/obstacle_tile.png")
+                if (image_path == "/assets/img/obstacle_tile.png")
                     var panel = this.add.image(0, 0, 'obstacle_tile').setScale(x, x).setOrigin(i - gridX + 1, j - gridY - (height - 200) / 800);
                 else
                     var panel = this.add.image(0, 0, 'free_tile').setScale(x, x).setOrigin(i - gridX + 1, j - gridY - (height - 200) / 800);
