@@ -1,9 +1,9 @@
-var width = window.innerWidth/4;
-var height = window.innerHeight/1.5;
+//var width = window.innerWidth/4;
+//var height = window.innerHeight/1.5;
 class OptionsMenu extends Phaser.Scene {
     constructor ()
     {
-        super({ key: 'optionsMenu', active: true });
+        super({ key: 'optionsMenu' });
     }
     preload ()
     {
@@ -11,11 +11,15 @@ class OptionsMenu extends Phaser.Scene {
     }
     create ()
     {
+        var $this = this;
+
         const option_x = 160;
         const option1_y = 160;
         const option2_y = 225;
         const option3_y = 290;
         const button_colour = 0x8B4513;
+
+        this.add.rectangle(width/2, height/2, width, height, 0, 0.8);
         
         var x = this.add.text(160, 320, "nothing pressed"); // for testing
         
@@ -31,7 +35,9 @@ class OptionsMenu extends Phaser.Scene {
         var c1 = this.add.circle(option_x-60, option1_y, 15, button_colour);
         c1.setInteractive();
         c1.on("pointerdown", function (ev) {
-                x.text = "resume pressed";
+                //x.text = "resume pressed";
+                $this.scene.resume('displayModel');
+                $this.scene.stop();
             })
         
         // Button to go to help page
@@ -55,11 +61,13 @@ class OptionsMenu extends Phaser.Scene {
         var c3 = this.add.circle(option_x-60, option3_y, 15, button_colour);
         c3.setInteractive();
         c3.on("pointerdown", function (ev) {
-                x.text = "quit pressed";
+                //x.text = "quit pressed";
+                $this.scene.start('levelSelect');
+                $this.scene.stop('displayModel');
             });
     }
 }
-var config = {
+/*var config = {
     type: Phaser.AUTO,
     width: width,
     height: height,
@@ -77,3 +85,4 @@ function preload ()
 function create ()
 {
 }
+*/

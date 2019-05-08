@@ -80,6 +80,18 @@ class DisplayModel extends Phaser.Scene {
 
 
         });
+
+        var $this = this;
+
+        // Options menu button
+        var optionsCircle = this.add.circle(0, 0, 30, 0x8b4513);
+        var questionMark = this.add.text(0, 0, "?", {fontFamily: 'Arial'}).setFontSize(38).setOrigin(0.5);
+        this.add.container(40, 40, [optionsCircle, questionMark]).setSize(80, 80)
+            .setInteractive()
+            .on('pointerdown', function(ev) {
+                $this.scene.launch('optionsMenu');
+                $this.scene.pause();
+            });
     }
 
     update() {
