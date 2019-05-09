@@ -2,7 +2,7 @@ class DisplayModel extends Phaser.Scene {
 
     constructor() {
         super({key: 'displayModel'});
-        this.updating = true;
+        this.updating = false;
         this.actors = [];
         this.items = [];
         this.x = 0;
@@ -92,6 +92,16 @@ class DisplayModel extends Phaser.Scene {
                 $this.scene.launch('optionsMenu');
                 $this.scene.pause();
             });
+        
+        // Button to start playing the level
+        var startButton = this.add.rectangle(400, 50, 200,40,0xff0000);
+        var startText = this.add.text(375, 45, "Start");
+        startButton.setInteractive();
+        startButton.on("pointerdown", function (ev) {
+            $this.updating = true;
+            startText.destroy();
+            this.destroy()
+        });
     }
 
     update() {
