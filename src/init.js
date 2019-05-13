@@ -14,7 +14,7 @@ var config = {
             debug: false
         }
     },
-    scene: [WelcomePage, LevelSelect, DisplayModel, OptionsMenu],
+    scene: [WelcomePage, LevelSelect, DisplayModel, OptionsMenu, CompletedLevelMenu, HelpPage],
 };
 
 var game = new Phaser.Game(config);
