@@ -148,15 +148,21 @@ class DisplayModel extends Phaser.Scene {
                             a.actor.setVelocityY(0)
                             a.x = mactor.position.row
                             a.y = mactor.position.col
-                            var st = mactor.shouldTerminate;
-                            if(st){
-                                $this.updating=false;
-                                $this.scene.start('emailPage');
-                            }
                         } catch (err) {
                             a.actor.destroy()
                             a.destroyed = true
                         }
+                    }
+                }
+
+                var st = model.isGameDone
+                if(st){
+                    $this.updating=false;
+                    if(model.playerWins){
+
+                        alert("victory")
+                    }else{
+                        alert("loss")
                     }
                 }
             }, 1000);
