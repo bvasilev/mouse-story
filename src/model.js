@@ -155,6 +155,11 @@ class Model {
     this._actors.push(new FollowingActor(type, follows, this, position, eats, dies));
   }
 
+  getActorByNameAndPosition(x, y, name){
+    for (let a of this._actors) if (a.pos.x == x && a.pos.y == y && a.name == name) return a;
+    throw new Error("Tried to get non-existent actor with name " + name);
+  }
+
   /**
    * Fills the list of items from the given list.
    * @param {string[]} items
@@ -460,6 +465,7 @@ class Model {
     
     this._actors = final_actors;
 
+    console.log(this.getByName("Normal Mouse").position)
     for(let a of final_actors)
       if(!final_actors.filter(x => x.name == a.dies && x.position == a.position).length == 0)
         return true;
@@ -564,15 +570,6 @@ class FollowingActor {
   }
 
   /**
-   * Returns if the game ought to terminate
-   */
-  get shouldTerminate() {
-    if(this._follows=="N/A") return false;
-    var target = this.model.getByName(this._follows);
-    return target.position === this.position;
-  }
-
-  /**
    * Returns the place where we think we should move
    */
   get shouldMove() {
@@ -610,14 +607,31 @@ class FollowingActor {
     my_neighbours = this.position.getNeighbours(this._model);
     my_neighbours.push(this.position)
 
+    console.log(my_neighbours.reduce(function(prev, curr) {
+        return dist[prev.row][prev.col] < dist[curr.row][curr.col]
+          ? prev
+          : curr;
+      }))
 
     if (my_neighbours.length == 0) return this.position;
-    else
-      return my_neighbours.reduce(function(prev, curr) {
+    else{
+      var ret =  my_neighbours.reduce(function(prev, curr) {
         return dist[prev.row][prev.col] < dist[curr.row][curr.col]
           ? prev
           : curr;
       });
+      if(dist[ret.row][ret.col] > 100) return this.position;
+      return ret;
+    }
+  }
+
+  /**
+   * Returns if the game ought to terminate
+   */
+  get shouldTerminate() {
+    if(this._follows=="N/A") return false;
+    var target = this.model.getByName(this._follows);
+    return this.shouldMove() != this.position && target.position === this.position;
   }
 }
 
