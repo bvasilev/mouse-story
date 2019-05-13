@@ -64,9 +64,7 @@ class LevelSelect extends Phaser.Scene {
                     }).setName('level' + i);
 
                 var starNumber = Math.floor(Math.random()*3);
-                console.log(starNumber);
                 for(var j=0; j<=starNumber; j++){
-                    console.log('THIS IS INSIDE THE LOOP');
                     var star = $this.add.image(-45 + (j*40), 60, 'star').setScale(0.2);
                     button.add(star);
                 }
