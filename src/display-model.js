@@ -45,20 +45,30 @@ class DisplayModel extends Phaser.Scene {
         var prevX;
         var prevY;
         for (var item of model.items) {
-            this.items[i] = this.add.sprite(width - squaresize / 2, (i + 1 / 2) * squaresize, item).setScale(this.x, this.x);
-            this.items[i].displayHeight = this.x * 800;
-            this.items[i].displayWidth = this.x * 800;
-            this.items[i].setInteractive();
-            this.input.setDraggable(this.items[i]);
+            var newItem = this.add.sprite(width - squaresize / 2, (i + 1 / 2) * squaresize, item).setScale(this.x, this.x);
+            newItem.displayHeight = this.x * 800;
+            newItem.displayWidth = this.x * 800;
+            newItem.setInteractive();
+            this.input.setDraggable(newItem);
+            this.items[i]=new Actor(newItem,-1,-1,item)
             i += 1;
         }
         this.input.dragDistanceThreshold = 16;
 
+        var startDrag=true
+        var dragItem
 
         this.input.on('drag', function(pointer, gameObject, dragX, dragY) {
-
             gameObject.x = dragX;
             gameObject.y = dragY;
+
+            if(startDrag){
+                dragItem = $this.items.filter(i => i.actor==gameObject)[0]
+                var gridRow = Math.floor(gameObject.y / squaresize) - 1;
+                var gridCol = Math.floor(gameObject.x / squaresize);
+                model.removeItem(gridRow, gridCol);
+                startDrag=false;
+            }
 
 
         });
@@ -67,15 +77,19 @@ class DisplayModel extends Phaser.Scene {
 
             var gridRow = Math.floor(gameObject.y / squaresize) - 1;
             var gridCol = Math.floor(gameObject.x / squaresize);
+            console.log("add"+" "+gridRow+" "+gridCol)
             var isPlaced = model.placeItem(gridRow, gridCol, gameObject.texture.key)
-
+            startDrag=true
 
             if (!isPlaced) {
                 gameObject.x = width - squaresize / 2;
                 gameObject.y = (j + 1 / 2) * squaresize;
                 j = (j + 1) % i;
 
-            } 
+            } else{
+                dragItem.y=gridCol
+                dragItem.x=gridRow
+            }
 
 
         });
@@ -100,6 +114,9 @@ class DisplayModel extends Phaser.Scene {
             $this.updating = true;
             $this.ready=true;
             startText.destroy();
+
+            $this.actors = $this.actors.concat($this.items.filter(i=>i.x!=-1&&i.y!=-1))
+
             model.startGame();
 
             console.log(model)  
@@ -117,17 +134,16 @@ class DisplayModel extends Phaser.Scene {
             for (var a of this.actors) {
                 try {
                     var mactor = model.getByName(a.name)
-                    if(!a.name.includes("Mouse") && !a.name.includes("Cat")){
-                        mactor=model.getActorByNameAndPosition(a.x,a.y,a.name)
-                    }
-                    if (a.x < mactor.position.row) {
-                        a.actor.setVelocityY(800 * this.x);
-                    } else if (a.x > mactor.position.row) {
-                        a.actor.setVelocityY(-800 * this.x);
-                    } else if (a.y < mactor.position.col) {
-                        a.actor.setVelocityX(800 * this.x);
-                    } else if (a.y > mactor.position.col) {
-                        a.actor.setVelocityX(-800 * this.x);
+                    if(a.name.includes("Mouse") || a.name.includes("Cat")){
+                        if (a.x < mactor.position.row) {
+                            a.actor.setVelocityY(800 * this.x);
+                        } else if (a.x > mactor.position.row) {
+                            a.actor.setVelocityY(-800 * this.x);
+                        } else if (a.y < mactor.position.col) {
+                            a.actor.setVelocityX(800 * this.x);
+                        } else if (a.y > mactor.position.col) {
+                            a.actor.setVelocityX(-800 * this.x);
+                        }
                     }
                 } catch (err) {
                 }
@@ -140,14 +156,15 @@ class DisplayModel extends Phaser.Scene {
                             var mactor = model.getByName(a.name)
                             if(!a.name.includes("Mouse") && !a.name.includes("Cat")){
                                 mactor=model.getActorByNameAndPosition(a.x,a.y,a.name)
+                            }else{
+                                a.actor.x = 0
+                                a.actor.y = 0
+                                a.actor.setVelocityX(0)
+                                a.actor.setVelocityY(0)
+                                a.x = mactor.position.row
+                                a.y = mactor.position.col
+                                a.actor.setOrigin(-mactor.position.col, -(height - 200) / 800 - mactor.position.row);
                             }
-                            a.actor.setOrigin(-mactor.position.col, -(height - 200) / 800 - mactor.position.row);
-                            a.actor.x = 0
-                            a.actor.y = 0
-                            a.actor.setVelocityX(0)
-                            a.actor.setVelocityY(0)
-                            a.x = mactor.position.row
-                            a.y = mactor.position.col
                         } catch (err) {
                             a.actor.destroy()
                             a.destroyed = true
