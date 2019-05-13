@@ -297,7 +297,7 @@ var level5 = { // level with blue mouse 2
 
       "dies": "N/A",
 
-      "eats": "Blue Mouse"
+      "eats": "Blue Cheese"
 
 
     },
@@ -359,11 +359,11 @@ var level6 = {
 
   "grid": [ ".....",
 
-            ".#..#",
+            "....#",
 
             ".#...",
 
-            "####.",
+            ".###.",
 
             "....."],
 
