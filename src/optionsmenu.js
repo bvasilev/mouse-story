@@ -70,13 +70,13 @@ class OptionsMenu extends Phaser.Scene {
         var t4 = this.add.text(option_x, option4_y, "Quit");
         t4.setOrigin(0.5);
         
-        var p5 = this.add.image(option_x, 420, button_image).setScale(0.2,0.05)
+        /*var p5 = this.add.image(option_x, 420, button_image).setScale(0.2,0.05)
                      .setInteractive()
                      .on('pointerdown', function (ev4) {
                          $this.scene.launch('completedLevelMenu');
                          $this.scene.stop();
                      });
         var t5 = this.add.text(option_x, 420, "Test completed level menu");
-        t5.setOrigin(0.5);
+        t5.setOrigin(0.5);*/
     }
 }
