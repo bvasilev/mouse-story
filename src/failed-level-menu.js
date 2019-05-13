@@ -27,6 +27,16 @@ class FailedLevelMenu extends Phaser.Scene {
             });
         var t1 = this.add.text(button_x, button1_y, "Retry level");
         t1.setOrigin(0.5);
+        
+        var p2 = this.add.image(button_x, button2_y, button_image).setScale(0.2, 0.05)
+            .setInteractive()
+            .on('pointerdown', function(ev2) {
+                $this.scene.start('levelSelect');
+                $this.scene.stop('displayModel');
+                $this.scene.stop();
+            });
+        var t2 = this.add.text(button_x, button2_y, "Level Select");
+        t2.setOrigin(0.5);
 
 
     }
