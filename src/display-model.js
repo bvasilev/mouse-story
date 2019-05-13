@@ -155,14 +155,14 @@ class DisplayModel extends Phaser.Scene {
                     }
                 }
 
-                var st = model.isGameDone
-                if(st){
-                    $this.updating=false;
-                    if(model.playerWins){
+               var st = model.isGameDone
+                if (st) {
+                    $this.updating = false;
+                    if (model.playerWins) {
 
-                        alert("victory")
-                    }else{
-                        alert("loss")
+                        $this.scene.start('completedLevelMenu');
+                    } else {
+                        $this.scene.start('failedLevelMenu');
                     }
                 }
             }, 1000);
