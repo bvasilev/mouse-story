@@ -67,16 +67,14 @@ class DisplayModel extends Phaser.Scene {
             var gridRow = Math.floor(gameObject.y / squaresize) - 1;
             var gridCol = Math.floor(gameObject.x / squaresize);
             var isPlaced = model.placeItem(gridRow, gridCol, gameObject.texture.key)
-            console.log(isPlaced);
+
 
             if (!isPlaced) {
                 gameObject.x = width - squaresize / 2;
                 gameObject.y = (j + 1 / 2) * squaresize;
                 j = (j + 1) % i;
 
-            } else {
-                this.actors.push(gameObject);
-            }
+            } 
 
 
         });
@@ -100,7 +98,8 @@ class DisplayModel extends Phaser.Scene {
         startButton.on("pointerdown", function (ev) {
             $this.updating = true;
             startText.destroy();
-            this.destroy()
+            model.startGame();
+            this.destroy();
         });
     }
 
