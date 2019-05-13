@@ -53,7 +53,7 @@ class OptionsMenu extends Phaser.Scene {
                      .setInteractive()
                      .on('pointerdown', function (ev3) {
                          //x.text = "help pressed";
-                         $this.scene.pause();
+                         $this.scene.stop();
                          $this.scene.start('help');
                      });
         var t3 = this.add.text(option_x, option3_y, "Help");

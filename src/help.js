@@ -41,7 +41,7 @@ class HelpPage extends Phaser.Scene {
         this.add.container(40, 40, [optionsCircle, exitSymbol]).setSize(80, 80)
             .setInteractive()
             .on('pointerdown', function(ev) {
-                $this.scene.resume('optionsMenu');
+                $this.scene.start('optionsMenu');
                 $this.scene.stop();
             });
     }

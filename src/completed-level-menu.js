@@ -32,6 +32,7 @@ class CompletedLevelMenu extends Phaser.Scene {
                      .setInteractive()
                      .on('pointerdown', function (ev2) {
                          $this.scene.start('levelSelect');
+                         $this.scene.stop('displayModel');
                          $this.scene.stop();
                      });
         var t2 = this.add.text(button_x, button2_y, "Main menu");
