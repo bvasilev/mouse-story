@@ -10,6 +10,7 @@ class DisplayModel extends Phaser.Scene {
 
     preload() {
         phaserPreload(this);
+        this.ready=false;
     }
 
     create() {
