@@ -1,4 +1,5 @@
 var model = new Model();
+var completedLevels = 0;
 
 var width = window.innerWidth-20
 var height = window.innerHeight-20
