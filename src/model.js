@@ -577,9 +577,9 @@ class FollowingActor {
       return this.position;
     }
 
-    var dist = Array(this.model.cntCols).fill(0);
-    for(let i = 0; i < this.model.cntCols; i++)
-      dist[i] = Array(this.model.cntRows).fill(1000000000)
+    var dist = Array(this.model.cntRows).fill(0);
+    for(let i = 0; i < this.model.cntRows; i++)
+      dist[i] = Array(this.model.cntCols).fill(1000000000)
 
     // dist[i][j] = distance from my target
     // I will move so as to minimise distance
