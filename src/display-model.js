@@ -10,7 +10,7 @@ class DisplayModel extends Phaser.Scene {
 
     preload() {
         phaserPreload(this);
-        this.ready = false;
+        this.ready=false;
     }
 
     create() {
@@ -34,7 +34,7 @@ class DisplayModel extends Phaser.Scene {
             var actor = this.physics.add.sprite(0, 0, a.name).setScale(this.x, this.x).setOrigin(-a.position.col, -(height - 200) / 800 - a.position.row);
             actor.displayHeight = this.x * 800;
             actor.displayWidth = this.x * 800;
-            this.actors[i] = new Actor(actor, -a.position.row, -(height - 200) / 800 - a.position.col, a.name)
+            this.actors[i] = new Actor(actor, a.position.row, a.position.col, a.name)
             i += 1
         }
 
@@ -98,9 +98,11 @@ class DisplayModel extends Phaser.Scene {
         startButton.setInteractive();
         startButton.on("pointerdown", function (ev) {
             $this.updating = true;
-            $this.ready = true;
+            $this.ready=true;
             startText.destroy();
             model.startGame();
+
+            console.log(model)  
             this.destroy();
         });
     }
@@ -108,20 +110,23 @@ class DisplayModel extends Phaser.Scene {
     update() {
         var $this = this;
 
-        if (this.updating && this.ready) {
+        if (this.updating&&this.ready) {
             this.updating = false
             model.runStep();
             var i = 0
             for (var a of this.actors) {
                 try {
                     var mactor = model.getByName(a.name)
-                    if (a.x > -mactor.position.row) {
+                    if(!a.name.includes("Mouse") && !a.name.includes("Cat")){
+                        mactor=model.getActorByNameAndPosition(a.x,a.y,a.name)
+                    }
+                    if (a.x < mactor.position.row) {
                         a.actor.setVelocityY(800 * this.x);
-                    } else if (a.x < -mactor.position.row) {
+                    } else if (a.x > mactor.position.row) {
                         a.actor.setVelocityY(-800 * this.x);
-                    } else if (a.y > -(height - 200) / 800 - mactor.position.col) {
+                    } else if (a.y < mactor.position.col) {
                         a.actor.setVelocityX(800 * this.x);
-                    } else if (a.y < -(height - 200) / 800 - mactor.position.col) {
+                    } else if (a.y > mactor.position.col) {
                         a.actor.setVelocityX(-800 * this.x);
                     }
                 } catch (err) {
@@ -133,13 +138,20 @@ class DisplayModel extends Phaser.Scene {
                     if (!a.destroyed) {
                         try {
                             var mactor = model.getByName(a.name)
+                            if(!a.name.includes("Mouse") && !a.name.includes("Cat")){
+                                mactor=model.getActorByNameAndPosition(a.x,a.y,a.name)
+                            }
                             a.actor.setOrigin(-mactor.position.col, -(height - 200) / 800 - mactor.position.row);
                             a.actor.x = 0
                             a.actor.y = 0
                             a.actor.setVelocityX(0)
                             a.actor.setVelocityY(0)
-                            a.x = -mactor.position.row
-                            a.y = -(height - 200) / 800 - mactor.position.col
+                            a.x = mactor.position.row
+                            a.y = mactor.position.col
+                            var st = mactor.shouldTerminate;
+                            if(st){
+                                $this.updating=false;
+                            }
                         } catch (err) {
                             a.actor.destroy()
                             a.destroyed = true

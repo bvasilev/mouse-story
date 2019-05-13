@@ -156,7 +156,7 @@ class Model {
   }
 
   getActorByNameAndPosition(x, y, name){
-    for (let a of this._actors) if (a.pos.x == x && a.pos.y == y && a.name == name) return a;
+    for (let a of this._actors) if (a.position.row == x && a.position.col == y && a.name == name) return a;
     throw new Error("Tried to get non-existent actor with name " + name);
   }
 
@@ -631,7 +631,7 @@ class FollowingActor {
   get shouldTerminate() {
     if(this._follows=="N/A") return false;
     var target = this.model.getByName(this._follows);
-    return this.shouldMove() != this.position && target.position === this.position;
+    return target.position.row == this.position.row && target.position.col == this.position.col;
   }
 }
 
