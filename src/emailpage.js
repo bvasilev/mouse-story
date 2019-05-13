@@ -17,10 +17,11 @@ class EmailPage extends Phaser.Scene {
             if (y < x) x = y
 
             this.add.image(width / 2, height / 2, 'panel');
-            this.add.text(width / 2, 250, 'Well done for finishing the Mouse Story!', { fontFamily: 'Arial' }).setFontSize(38).setOrigin(0.5);
+            this.add.text(width / 2, 200, 'Well done for finishing some of the Mouse Story!', { fontFamily: 'Arial' }).setFontSize(38).setOrigin(0.5);
             this.add.text(width / 2, 400, 'Enter your email in the box if you would like ', { fontFamily: 'Arial' }).setFontSize(28).setOrigin(0.5);
             this.add.text(width / 2, 450, '    to hear more from Metaswitch ', { fontFamily: 'Arial' }).setFontSize(28).setOrigin(0.5);
             var mouse = this.add.sprite(width / 2, 600, 'mouse').setScale(x, x);
+            this.add.text(width / 2, 270, 'Press Level Select if you want to keep playing!', { fontFamily: 'Arial' }).setFontSize(28).setOrigin(0.5);
             var button = this.add.sprite(width / 2, 350, 'button').setScale(x * 2.5, x * 2.5);
             button.setInteractive()
             button.on('pointerdown', function(ev) {
