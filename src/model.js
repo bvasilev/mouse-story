@@ -438,12 +438,12 @@ class Model {
   }
 
   /** Is the game done? I.e. all actors have stopped moving */
-  isGameDone() {
+  get isGameDone() {
     return this.actors.every(a => a.shouldTerminate);
   }
 
   /** Has the player won the game? Call this when isGameDone() returns true */
-  playerWins() {
+  get playerWins() {
     const actorsReachedTargets = this.actors.every(a => a.reachedTarget);
     var cheeseEaten = true;
     for (const a of this.actors) {
@@ -464,7 +464,7 @@ class Model {
    */
   runStep() {
     // 1. check if terminate
-    if (this.isGameDone()) return true;
+    if (this.isGameDone) return true;
 
     // 2. get movements
 
@@ -657,7 +657,7 @@ class FollowingActor {
    * Returns if the game ought to terminate
    */
   get shouldTerminate() {
-    return reachedTarget() || cantMoveTowardsTarget();
+    return this.reachedTarget || this.cantMoveTowardsTarget;
   }
 
   /** Has this actor reached its traget? */
@@ -672,6 +672,7 @@ class FollowingActor {
 
   /** Does this actor have a no good move towards it's target */
   get cantMoveTowardsTarget() {
+    if (this._follows == "N/A") return false;
     return (
       this.shouldMove.row == this.position.row &&
       this.shouldMove.col == this.position.col
