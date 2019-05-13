@@ -152,11 +152,15 @@ class Model {
     const position = new Point(actor.x, actor.y);
     const eats = actor.eats;
     const dies = actor.dies;
-    this._actors.push(new FollowingActor(type, follows, this, position, eats, dies));
+    this._actors.push(
+      new FollowingActor(type, follows, this, position, eats, dies)
+    );
   }
 
-  getActorByNameAndPosition(x, y, name){
-    for (let a of this._actors) if (a.position.row == x && a.position.col == y && a.name == name) return a;
+  getActorByNameAndPosition(x, y, name) {
+    for (let a of this._actors)
+      if (a.position.row == x && a.position.col == y && a.name == name)
+        return a;
     throw new Error("Tried to get non-existent actor with name " + name);
   }
 
@@ -416,7 +420,6 @@ class Model {
     return -1;
   }
 
-  
   /**
    * Once all items are placed - put them on the game grid.
    * @throws {Error} - if no level is loaded
@@ -434,6 +437,22 @@ class Model {
     }
   }
 
+  /** Is the game done? I.e. all actors have stopped moving */
+  isGameDone() {
+    return this.actors.every(a => a.shouldTerminate);
+  }
+
+  /** Has the player won the game? Call this when isGameDone() returns true */
+  playerWins() {
+    const actorsReachedTargets = this.actors.every(a => a.reachedTarget);
+    var cheeseEaten = true;
+    for (const a of this.actors) {
+      if (a.name.includes("Cheese")) cheeseEaten = false;
+    }
+
+    return actorsReachedTargets && cheeseEaten;
+  }
+
   /**
    * Run a single simulation step.
    * This means:
@@ -445,13 +464,13 @@ class Model {
    */
   runStep() {
     // 1. check if terminate
-    for (const a of this._actors) if (a.shouldTerminate) return true;
+    if (this.isGameDone()) return true;
 
     // 2. get movements
-    
+
     for (const a of this._actors) {
       var target = a.shouldMove;
-      if(target){
+      if (target) {
         a.position = target;
         this._grid[target.row][target.col].onEnter();
       }
@@ -460,14 +479,22 @@ class Model {
     // 3. put further needed actions here
     var final_actors = this._actors;
 
-    for(let a of final_actors)
-      final_actors = final_actors.filter(x => x.name != a.eats || x.position.row != a.position.row || x.position.col != a.position.col)
-    
+    for (let a of final_actors)
+      final_actors = final_actors.filter(
+        x =>
+          x.name != a.eats ||
+          x.position.row != a.position.row ||
+          x.position.col != a.position.col
+      );
+
     this._actors = final_actors;
 
-    console.log(this.getByName("Normal Mouse").position)
-    for(let a of final_actors)
-      if(!final_actors.filter(x => x.name == a.dies && x.position == a.position).length == 0)
+    console.log(this.getByName("Normal Mouse").position);
+    for (let a of final_actors)
+      if (
+        !final_actors.filter(x => x.name == a.dies && x.position == a.position)
+          .length == 0
+      )
         return true;
     return false;
   }
@@ -503,13 +530,13 @@ class FollowingActor {
 
   // if this actor is over one of these actors,
   // then does actors dissapear.
-  get eats(){
+  get eats() {
     return this._eats;
   }
 
   // if this actor is over one of these actors,
   // then the game finishes.
-  get dies(){
+  get dies() {
     return this._dies;
   }
 
@@ -573,21 +600,20 @@ class FollowingActor {
    * Returns the place where we think we should move
    */
   get shouldMove() {
-    if(this._follows=="N/A"){
+    if (this._follows == "N/A") {
       return this.position;
     }
 
     var dist = Array(this.model.cntRows).fill(0);
-    for(let i = 0; i < this.model.cntRows; i++)
-      dist[i] = Array(this.model.cntCols).fill(1000000000)
+    for (let i = 0; i < this.model.cntRows; i++)
+      dist[i] = Array(this.model.cntCols).fill(1000000000);
 
     // dist[i][j] = distance from my target
     // I will move so as to minimise distance
 
     var target = this.model.getByName(this._follows).position;
-    if(this.position == target.position)
-      return this.position;
-    
+    if (this.position == target.position) return this.position;
+
     dist[target.row][target.col] = 0;
 
     var queue = [target];
@@ -605,22 +631,24 @@ class FollowingActor {
 
     var my_neighbours = [];
     my_neighbours = this.position.getNeighbours(this._model);
-    my_neighbours.push(this.position)
+    my_neighbours.push(this.position);
 
-    console.log(my_neighbours.reduce(function(prev, curr) {
+    console.log(
+      my_neighbours.reduce(function(prev, curr) {
         return dist[prev.row][prev.col] < dist[curr.row][curr.col]
           ? prev
           : curr;
-      }))
+      })
+    );
 
     if (my_neighbours.length == 0) return this.position;
-    else{
-      var ret =  my_neighbours.reduce(function(prev, curr) {
+    else {
+      var ret = my_neighbours.reduce(function(prev, curr) {
         return dist[prev.row][prev.col] < dist[curr.row][curr.col]
           ? prev
           : curr;
       });
-      if(dist[ret.row][ret.col] > 100) return this.position;
+      if (dist[ret.row][ret.col] > 100) return this.position;
       return ret;
     }
   }
@@ -629,13 +657,27 @@ class FollowingActor {
    * Returns if the game ought to terminate
    */
   get shouldTerminate() {
-    if(this._follows=="N/A") return false;
-    var target = this.model.getByName(this._follows);
-    return target.position.row == this.position.row && target.position.col == this.position.col;
+    return reachedTarget() || cantMoveTowardsTarget();
+  }
+
+  /** Has this actor reached its traget? */
+  get reachedTarget() {
+    if (this._follows == "N/A") return true;
+    const target = this.model.getByName(this._follows);
+    return (
+      target.position.row == this.position.row &&
+      target.position.col == this.position.col
+    );
+  }
+
+  /** Does this actor have a no good move towards it's target */
+  get cantMoveTowardsTarget() {
+    return (
+      this.shouldMove.row == this.position.row &&
+      this.shouldMove.col == this.position.col
+    );
   }
 }
-
-
 
 /**
  * Represents an immutable point the tile grid
