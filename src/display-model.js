@@ -151,6 +151,7 @@ class DisplayModel extends Phaser.Scene {
                             var st = mactor.shouldTerminate;
                             if(st){
                                 $this.updating=false;
+                                $this.scene.start('emailPage');
                             }
                         } catch (err) {
                             a.actor.destroy()
