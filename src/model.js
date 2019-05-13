@@ -575,7 +575,7 @@ class FollowingActor {
     get shouldTerminate() {
         if (this._follows == "N/A") return false;
         var target = this.model.getByName(this._follows);
-        return target.position === this.position;
+        return target.position.row == this.position.row &&target.position.col == this.position.col;
     }
 
     /**
