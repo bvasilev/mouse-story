@@ -346,7 +346,7 @@ class Model {
    * @returns {boolean} - true if there was an item and it was removed, false otherwise
    */
   removeItem(x, y) {
-    const index = this._getIndexOf(this._placedItems, x, y);
+    const index = this._placedItems.indexOf(this._placedItems.filter(i => i.x==x && i.y==y)[0]);
     if (index == -1) return false; // Item not found
     const item = this._placedItems[index].type;
     this._placedItems.splice(index, 1); // Remove item from placed
@@ -612,7 +612,7 @@ class FollowingActor {
     // I will move so as to minimise distance
 
     var target = this.model.getByName(this._follows).position;
-    if (this.position == target.position) return this.position;
+    if (this.position._col == target._col && this.position._row == target._row) return this.position;
 
     dist[target.row][target.col] = 0;
 
