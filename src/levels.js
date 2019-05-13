@@ -208,9 +208,9 @@ var level4 = { // level with blue mouse
 
       "type": "Blue Mouse",
 
-      "x": 4, 
+      "x": 0, 
 
-      "y": 0,
+      "y": 4,
 
       "dies": "Cheese",
 
@@ -222,9 +222,9 @@ var level4 = { // level with blue mouse
 
       "type": "Cheese",
 
-      "x": 3,
+      "x": 1,
 
-      "y": 1,
+      "y": 3,
 
       "dies": "N/A",
 
@@ -236,9 +236,9 @@ var level4 = { // level with blue mouse
 
       "type": "Blue Cheese",
 
-      "x": 0,
+      "x": 1,
 
-      "y": 1,
+      "y": 0,
 
       "dies": "N/A",
 
@@ -248,7 +248,7 @@ var level4 = { // level with blue mouse
 
   ],
 
-  "items": ["Blue House", "#"]
+  "items": ["Blue House", "#","House"]
 
 };
 
@@ -258,7 +258,7 @@ var level5 = { // level with blue mouse 2
 
   "grid": [ ".....",
 
-            "...#",
+            "...#.",
 
             ".#...",
 
@@ -291,9 +291,9 @@ var level5 = { // level with blue mouse 2
 
       "type": "Blue Mouse",
 
-      "x": 4,
+      "x": 0,
 
-      "y": 0,
+      "y": 4,
 
       "dies": "N/A",
 
@@ -306,9 +306,9 @@ var level5 = { // level with blue mouse 2
 
       "type": "Blue House",
 
-      "x": 4,
+      "x": 2,
 
-      "y": 2,
+      "y": 4,
 
       "dies": "Blue Mouse",
 
@@ -321,9 +321,9 @@ var level5 = { // level with blue mouse 2
 
       "type": "Blue Cheese",
 
-      "x": 2,
+      "x": 0,
 
-      "y": 0,
+      "y": 2,
 
       "dies": "N/A",
 
@@ -349,7 +349,7 @@ var level5 = { // level with blue mouse 2
 
   ],
 
-  "items": ["#", "#", "#"],
+  "items": ["#", "#", "#","House"],
 
 };
 
