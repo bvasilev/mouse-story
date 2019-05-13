@@ -1,5 +1,3 @@
-//var width = window.innerWidth/4;
-//var height = window.innerHeight/1.5;
 class OptionsMenu extends Phaser.Scene {
     constructor ()
     {
@@ -19,11 +17,10 @@ class OptionsMenu extends Phaser.Scene {
         const option3_y = 290;
         const option4_y = 355;
         const button_image = 'panel';
-        //const button_colour = 0x8B4513;
 
         this.add.rectangle(width/2, height/2, width, height, 0, 0.8);
         
-        var x = this.add.text(160, 500, "nothing pressed"); // for testing
+        //var x = this.add.text(160, 500, "nothing pressed"); // for testing
         
         // "Options Menu" text box
         this.add.text(100, 100, 'Options Menu');
@@ -55,7 +52,9 @@ class OptionsMenu extends Phaser.Scene {
         var p3 = this.add.image(option_x, option3_y, button_image).setScale(0.2,0.05)
                      .setInteractive()
                      .on('pointerdown', function (ev3) {
-                         x.text = "help pressed";
+                         //x.text = "help pressed";
+                         $this.scene.pause();
+                         $this.scene.start('help');
                      });
         var t3 = this.add.text(option_x, option3_y, "Help");
         t3.setOrigin(0.5);
@@ -70,24 +69,14 @@ class OptionsMenu extends Phaser.Scene {
                      });
         var t4 = this.add.text(option_x, option4_y, "Quit");
         t4.setOrigin(0.5);
+        
+        var p5 = this.add.image(option_x, 420, button_image).setScale(0.2,0.05)
+                     .setInteractive()
+                     .on('pointerdown', function (ev4) {
+                         $this.scene.launch('completedLevelMenu');
+                         $this.scene.stop();
+                     });
+        var t5 = this.add.text(option_x, 420, "Test completed level menu");
+        t5.setOrigin(0.5);
     }
 }
-/*var config = {
-    type: Phaser.AUTO,
-    width: width,
-    height: height,
-    scene: [OptionsMenu,
-        {
-        preload: preload,
-        create: create,
-        key: 'optionsMenu',
-    }]
-};
-var game = new Phaser.Game(config);
-function preload ()
-{
-}
-function create ()
-{
-}
-*/
