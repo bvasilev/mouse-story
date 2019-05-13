@@ -44,7 +44,8 @@ class OptionsMenu extends Phaser.Scene {
                      .setInteractive()
                      .on('pointerdown', function (ev2) {
                          //x.text = "restart pressed";
-                         $this.scene.restart('displayModel');
+                         model.resetLevel();
+                         $this.scene.start('displayModel');
                          $this.scene.stop();
                      });
         var t2 = this.add.text(option_x, option2_y, "Restart");

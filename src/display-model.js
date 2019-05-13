@@ -10,6 +10,7 @@ class DisplayModel extends Phaser.Scene {
 
     preload() {
         phaserPreload(this);
+        this.ready = false;
     }
 
     create() {
@@ -97,6 +98,7 @@ class DisplayModel extends Phaser.Scene {
         startButton.setInteractive();
         startButton.on("pointerdown", function (ev) {
             $this.updating = true;
+            $this.ready = true;
             startText.destroy();
             model.startGame();
             this.destroy();
@@ -106,7 +108,7 @@ class DisplayModel extends Phaser.Scene {
     update() {
         var $this = this;
 
-        if (this.updating) {
+        if (this.updating && this.ready) {
             this.updating = false
             model.runStep();
             var i = 0
