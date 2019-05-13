@@ -156,11 +156,14 @@ class DisplayModel extends Phaser.Scene {
                 }
 
                var st = model.isGameDone
-                if (st) {
+               if (st) {
                     $this.updating = false;
                     if (model.playerWins) {
-
-                        $this.scene.start('completedLevelMenu');
+                        completedLevels = completedLevels + 1;
+                        if (completedLevels > 3)
+                            $this.scene.start('emailPage');
+                        else
+                            $this.scene.start('completedLevelMenu');
                     } else {
                         $this.scene.start('failedLevelMenu');
                     }
