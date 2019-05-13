@@ -6,6 +6,7 @@ class EmailPage extends Phaser.Scene {
         preload() {
             this.load.image('panel', 'assets/img/panel.jpg');
             this.load.image('mouse', 'assets/img/mouse.png');
+            this.load.image('button', 'assets/img/levelSelect.png');
         }
 
         create() {
@@ -20,6 +21,12 @@ class EmailPage extends Phaser.Scene {
             this.add.text(width / 2, 400, 'Enter your email in the box if you would like ', { fontFamily: 'Arial' }).setFontSize(28).setOrigin(0.5);
             this.add.text(width / 2, 450, '    to hear more from Metaswitch ', { fontFamily: 'Arial' }).setFontSize(28).setOrigin(0.5);
             var mouse = this.add.sprite(width / 2, 600, 'mouse').setScale(x, x);
+            var button = this.add.sprite(width / 2, 350, 'button').setScale(x * 2.5, x * 2.5);
+            button.setInteractive()
+            button.on('pointerdown', function(ev) {
+                //x.text = "restart pressed";
+                $this.scene.start('levelSelect');
+            });
 
             setTimeout(function() {
                 var email = window.prompt("Please enter your email", "Email Address");
