@@ -664,6 +664,7 @@ var level8 = {
     ],
 
     "items": ["#", "#"]
+
 };
 
 var level9 = {
@@ -750,6 +751,119 @@ var level9 = {
 
 };
 
+var level10 = {
+
+    "grid": [".....",
+
+             "...#.",
+
+             "..#..",
+
+             ".#...",
+
+             "....."
+             ],
+
+    "grid_width": 5,
+
+    "grid_height": 5,
+
+    "actors": [
+
+        {
+
+            "type": "Normal Mouse",
+
+            "x": 4,
+
+            "y": 0,
+
+            "dies": "N/A",
+
+            "eats": "Cheese"
+
+
+        },
+        
+        {
+
+            "type": "Blue Mouse",
+
+            "x": 0,
+
+            "y": 4,
+
+            "dies": "N/A",
+
+            "eats": "Blue Cheese"
+
+
+        },
+
+        {
+
+            "type": "House",
+
+            "x": 0,
+
+            "y": 0,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+        
+        {
+
+            "type": "Blue House",
+
+            "x": 4,
+
+            "y": 4,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+
+        {
+
+            "type": "Blue Cheese",
+
+            "x": 1,
+
+            "y": 2,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+        {
+
+            "type": "Blue Cheese",
+
+            "x": 2,
+
+            "y": 1,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+
+    ],
+
+    "items": ["#", "#"]
+
+};
 
 var metadata = {
 
@@ -779,7 +893,7 @@ var metadata = {
 
     "itemTypes": ["Cheese", "Blue Cheese", "House", "Blue House", "Yarn", "#"]
 
-}
+};
 
 var levels = {
     level1: level1,
@@ -791,5 +905,6 @@ var levels = {
     level7: level7,
     level8: level8,
     level9: level9,
+    level10: level10,
     metadata: metadata,
 };
