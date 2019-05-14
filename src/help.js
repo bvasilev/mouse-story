@@ -40,7 +40,7 @@ class HelpPage extends Phaser.Scene {
             
         var page = 1;
         var imageCount = images.length;
-        var pageButtonCount = Math.floor((width - (2*75)) / 200);
+        var pageButtonCount = Math.floor((height - (2*75)) / 150);
         var pageCount = Math.ceil(imageCount/pageButtonCount);    
             
         var backButton = this.add.image(50, height / 2, 'arrow').setScale(0.3)
@@ -65,16 +65,16 @@ class HelpPage extends Phaser.Scene {
             backButton.setVisible(page>1);
             nextButton.setVisible(page<pageCount);
 
-            var start = (page-1) * pageButtonCount - 1;
+            var start = (page-1) * pageButtonCount;
             var end = Math.min(page * pageButtonCount, imageCount);
 
             selector.removeAll();
 
-            for (var i = start + 1; i<=end; i++) {
+            for (var i = start; i<end; i++) {
                 var g1 = $this.add.image(-(height/2), 0, images[i][0]).setScale(images[i][3], images[i][3]);
                 var t1 = $this.add.text(-(height/2)+100, 0, images[i][2]);
 
-                var button = $this.add.container(0, (i - start - ((pageButtonCount + 1) / 2)) * 200, [g1, t1])
+                var button = $this.add.container(0, 150 + ((i - start - ((pageButtonCount + 1) / 2)) * 150), [g1, t1])
                     .setSize(175, 200)
 
                 selector.add(button);
