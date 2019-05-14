@@ -63,9 +63,15 @@ class LevelSelect extends Phaser.Scene {
                         $this.scene.start('displayModel');
                     }).setName('level' + i);
 
-                var starNumber = Math.floor(Math.random()*3);
+                /*var starNumber = Math.floor(Math.random()*3);
                 for(var j=0; j<=starNumber; j++){
                     var star = $this.add.image(-45 + (j*40), 60, 'star').setScale(0.2);
+                    button.add(star);
+                }*/
+
+                console.log(Cookies.get('level'+i));
+                if (Cookies.get('level' + i) == 1) {
+                    var star = $this.add.image(0, 60, 'star').setScale(0.2);
                     button.add(star);
                 }
 

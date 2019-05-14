@@ -11,6 +11,7 @@ class Model {
     this._items = []; // Items the player has, specified by type (string)
     this._placedItems = []; // Items the player has placed - given by type and coordinates
     this._level = null; // The level data loaded directly from a file
+    this._name = '';
   }
 
   /**
@@ -23,6 +24,10 @@ class Model {
 
   get items() {
     return this._items;
+  }
+
+  get name() {
+    return this._name;
   }
 
   /**
@@ -64,6 +69,8 @@ class Model {
     // if (filePath.slice(-5) != ".json") {
     //   throw new Error("Wrong file type!");
     // }
+
+    this._name = filePath;
 
     if (!(filePath in levels)) {
       throw new Error("Level not found!");

@@ -176,6 +176,7 @@ class DisplayModel extends Phaser.Scene {
                if (st) {
                     $this.updating = false;
                     if (model.playerWins) {
+                        Cookies.set(model.name, 1);
                         completedLevels = completedLevels + 1;
                         if (completedLevels > 3)
                             $this.scene.start('emailPage');
