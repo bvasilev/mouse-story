@@ -37,6 +37,15 @@ class LevelSelect extends Phaser.Scene {
                 page = Math.min(pageCount, page+1);
                 update();
             });
+            
+        var instructionsButton = this.add.rectangle(0, 0, 160, 40, 0x8b4513);
+        var instructionsText = this.add.text(-53, -8, "Instructions");
+        instructionsButton.setInteractive();
+        instructionsButton.on("pointerdown", function (ev) {
+            $this.scene.start('instructions');
+            $this.scene.stop();
+        });
+        var instructionsContainer = this.add.container(width/2, height - 100, [instructionsButton, instructionsText]);
 
         var selector = this.add.container(width/2, height/2).setSize(200*pageButtonCount, 200);
         update();
