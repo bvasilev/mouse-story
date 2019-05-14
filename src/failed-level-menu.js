@@ -10,6 +10,7 @@ class FailedLevelMenu extends Phaser.Scene {
 
         const button_x = width / 2;
         const button1_y = 220;
+        const button2_y = 285;
 
         const button_image = 'panel';
 
