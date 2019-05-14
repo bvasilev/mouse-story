@@ -106,9 +106,12 @@ class DisplayModel extends Phaser.Scene {
                 $this.scene.pause();
             });
         
+        var startText = this.add.text(width/3, 30, "Level "+model.name.match(/\d+/g)).setFontSize(20);
+        
+        
         // Button to start playing the level
-        var startButton = this.add.rectangle(400, 50, 200,40,0x8b4513);
-        var startText = this.add.text(375, 45, "Start");
+        var startButton = this.add.rectangle(width/3 + 30, height - 95, 120,40,0x8b4513);
+        var startText = this.add.text(width/3, height - 100, "Start");
         startButton.setInteractive();
         startButton.on("pointerdown", function (ev) {
             $this.updating = true;
