@@ -1,11 +1,11 @@
 // each list has: [image name, file location, text description, scale for image to display at]
 var images = [["Normal Mouse",   "assets/img/mouse.png",       "Mouse: travels to the nearest house.\nThe mice's aim is to eat all the cheese.", 0.2],
               ["Obstacle Tile",  "assets/img/obstacle.png",    "Obstacle: mice cannot move across this square.\nObjects cannot be placed here.", 0.1],
-              ["Cheese",         "assets/img/cheese.png",      "Cheese: can be eaten by any mouse.", 0.15],
+              ["Cheese",         "assets/img/cheese.png",      "Cheese: can be eaten by normal mice.", 0.15],
               ["House",          "assets/img/house.png",       "House: the mouse travels to the nearest house.", 0.15],
               ["Blue Mouse",     "assets/img/blue-mouse.png",  "Blue Mouse: travels to the nearest blue house.\nCan only eat blue cheese.", 0.2],
-              ["Blue Cheese",    "assets/img/blue-cheese.png", "Blue Cheese: can only be eaten by blue mice.", 0.15],
-              ["Blue House",     "assets/img/blue-house.png",  "Blue House: the blue mouse travels to the nearest blue house.", 0.15]
+              ["Blue Cheese",    "assets/img/blue-cheese.png", "Blue Cheese: can be eaten by any mouse.", 0.15],
+              ["Blue House",     "assets/img/blue-house.png",  "Blue House: any mouse can travel here.", 0.15]
               ];
 class HelpPage extends Phaser.Scene {
     constructor ()
