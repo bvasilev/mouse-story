@@ -1,11 +1,11 @@
 // each list has: [image name, file location, text description, scale for image to display at]
-var images = [["Normal Mouse",   "assets/img/mouse.png",       "Mouse: travels to the nearest house.\nThe mice's aim is to eat all the cheese.", 0.2],
+var images = [["Normal Mouse",   "assets/img/mouse.png",       "Alice: travels to the nearest house.\nAlice's aim is to eat all the yellow cheese.", 0.2],
               ["Obstacle Tile",  "assets/img/obstacle.png",    "Obstacle: mice cannot move across this square.\nObjects cannot be placed here.", 0.1],
-              ["Cheese",         "assets/img/cheese.png",      "Cheese: can be eaten by normal mice.", 0.15],
-              ["House",          "assets/img/house.png",       "House: the mouse travels to the nearest house.", 0.15],
-              ["Blue Mouse",     "assets/img/blue-mouse.png",  "Blue Mouse: travels to the nearest blue house.\nCan only eat blue cheese.", 0.2],
-              ["Blue Cheese",    "assets/img/blue-cheese.png", "Blue Cheese: can be eaten by blue mice.", 0.15],
-              ["Blue House",     "assets/img/blue-house.png",  "Blue House: any blue mouse can travel here.", 0.15]
+              ["Cheese",         "assets/img/cheese.png",      "Yellow Cheese: can be eaten by Alice.", 0.15],
+              ["House",          "assets/img/house.png",       "Yellow House: Alice travels to the nearest yellow house.", 0.15],
+              ["Blue Mouse",     "assets/img/blue-mouse.png",  "Bob: travels to the nearest blue house.\nCan only eat blue cheese.", 0.2],
+              ["Blue Cheese",    "assets/img/blue-cheese.png", "Blue Cheese: can be eaten by Bob.", 0.15],
+              ["Blue House",     "assets/img/blue-house.png",  "Blue House: Bob travels to the nearest blue house.", 0.15]
               ];
 class HelpPage extends Phaser.Scene {
     constructor ()
@@ -21,21 +21,8 @@ class HelpPage extends Phaser.Scene {
     create ()
     {
         var $this = this;
-
-        const column1_x = 180;
-        const column2_x = 450;
         
-        var row_y = 80;
-
         this.add.rectangle(width/2, height/2, width, height, 0, 0.8);
-        
-        for (var i = 0; i < images.length; i++) {
-            var mouse = this.add.image(column1_x, row_y, images[i][0]).setScale(images[i][3], images[i][3]);
-            var t1 = this.add.text(column2_x, row_y, images[i][2], {align: 'left'});
-            t1.setOrigin(0.5);
-            
-            row_y += 100;
-        }
         
         var optionsCircle = this.add.circle(0, 0, 30, 0x8b4513);
         var exitSymbol = this.add.text(0, 0, "X", {fontFamily: 'Arial'}).setFontSize(38).setOrigin(0.5);
@@ -45,5 +32,50 @@ class HelpPage extends Phaser.Scene {
                 $this.scene.start('optionsMenu');
                 $this.scene.stop();
             });
+            
+            
+        var page = 1;
+        var imageCount = images.length;
+        var pageButtonCount = Math.floor((width - (2*75)) / 200);
+        var pageCount = Math.ceil(imageCount/pageButtonCount);    
+            
+        var backButton = this.add.image(50, height / 2, 'arrow').setScale(0.3)
+            .setInteractive()
+            .on('pointerdown', function(ev) {
+                page = Math.max(1, page-1);
+                update();
+            });
+
+        var nextButton = this.add.image(width - 50, height / 2, 'arrow').setScale(0.3).toggleFlipX()
+            .setInteractive()
+            .on('pointerdown', function(ev) {
+                page = Math.min(pageCount, page+1);
+                update();
+            });
+
+        var selector = this.add.container(width/2, height/2).setSize(200*pageButtonCount, 200);
+        update();
+
+        console.log(pageCount); console.log(imageCount); console.log(pageButtonCount);
+        function update ()
+        {
+            backButton.setVisible(page>1);
+            nextButton.setVisible(page<pageCount);
+
+            var start = (page-1) * pageButtonCount - 1;
+            var end = Math.min(page * pageButtonCount, imageCount);
+
+            selector.removeAll();
+
+            for (var i = start + 1; i<=end; i++) {
+                var g1 = $this.add.image(-(height/2), 0, images[i][0]).setScale(images[i][3], images[i][3]);
+                var t1 = $this.add.text(-(height/2)+100, 0, images[i][2]);
+
+                var button = $this.add.container(0, (i - start - ((pageButtonCount + 1) / 2)) * 200, [g1, t1])
+                    .setSize(175, 200)
+
+                selector.add(button);
+            }
+        }
     }
 }
