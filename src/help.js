@@ -4,8 +4,8 @@ var images = [["Normal Mouse",   "assets/img/mouse.png",       "Mouse: travels t
               ["Cheese",         "assets/img/cheese.png",      "Cheese: can be eaten by normal mice.", 0.15],
               ["House",          "assets/img/house.png",       "House: the mouse travels to the nearest house.", 0.15],
               ["Blue Mouse",     "assets/img/blue-mouse.png",  "Blue Mouse: travels to the nearest blue house.\nCan only eat blue cheese.", 0.2],
-              ["Blue Cheese",    "assets/img/blue-cheese.png", "Blue Cheese: can be eaten by any mouse.", 0.15],
-              ["Blue House",     "assets/img/blue-house.png",  "Blue House: any mouse can travel here.", 0.15]
+              ["Blue Cheese",    "assets/img/blue-cheese.png", "Blue Cheese: can be eaten by blue mice.", 0.15],
+              ["Blue House",     "assets/img/blue-house.png",  "Blue House: any blue mouse can travel here.", 0.15]
               ];
 class HelpPage extends Phaser.Scene {
     constructor ()
