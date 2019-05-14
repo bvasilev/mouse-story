@@ -53,7 +53,7 @@ class LevelSelect extends Phaser.Scene {
 
             for (var i = start + 1; i<=end; i++) {
                 var t1 = $this.add.text(0, -40, 'Level ' + i, {fontFamily: 'Arial'}).setFontSize(30).setOrigin(0.5);
-                var g1 = $this.add.graphics().fillStyle(0x109900, 1).fillRoundedRect(-87, -100, 175, 200, 32);
+                var g1 = $this.add.graphics().fillStyle(0x8b4513, 1).fillRoundedRect(-87, -100, 175, 200, 32);
 
                 var button = $this.add.container((i - start - ((pageButtonCount + 1) / 2)) * 200, 0, [g1, t1])
                     .setSize(175, 200)
