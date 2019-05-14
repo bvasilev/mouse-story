@@ -3,7 +3,7 @@ var images = [["Normal Mouse",   "assets/img/mouse.png",       "Alice: travels t
               ["Obstacle Tile",  "assets/img/obstacle.png",    "Obstacle: mice cannot move across this square.\nObjects cannot be placed here.", 0.1],
               ["Cheese",         "assets/img/cheese.png",      "Yellow Cheese: can be eaten by Alice.", 0.15],
               ["House",          "assets/img/house.png",       "Yellow House: Alice travels to the nearest yellow house.", 0.15],
-              ["Blue Mouse",     "assets/img/blue-mouse.png",  "Bob: travels to the nearest blue house.\nCan only eat blue cheese.", 0.2],
+              ["Blue Mouse",     "assets/img/blue-mouse.png",  "Bob: travels to the nearest blue house.\nBob's aim is to eat all the blue cheese.\nHe cannot eat yellow cheese.", 0.2],
               ["Blue Cheese",    "assets/img/blue-cheese.png", "Blue Cheese: can be eaten by Bob.", 0.15],
               ["Blue House",     "assets/img/blue-house.png",  "Blue House: Bob travels to the nearest blue house.", 0.15]
               ];
@@ -18,18 +18,22 @@ class HelpPage extends Phaser.Scene {
             this.load.image(images[i][0], images[i][1]);
         }
     }
+    init (data)
+    {
+        this.returnScene = data.returnScene;
+    }
     create ()
     {
         var $this = this;
         
         this.add.rectangle(width/2, height/2, width, height, 0, 0.8);
         
-        var optionsCircle = this.add.circle(0, 0, 30, 0x8b4513);
+        var exitCircle = this.add.circle(0, 0, 30, 0x8b4513);
         var exitSymbol = this.add.text(0, 0, "X", {fontFamily: 'Arial'}).setFontSize(38).setOrigin(0.5);
-        this.add.container(40, 40, [optionsCircle, exitSymbol]).setSize(80, 80)
+        this.add.container(40, 40, [exitCircle, exitSymbol]).setSize(80, 80)
             .setInteractive()
             .on('pointerdown', function(ev) {
-                $this.scene.start('optionsMenu');
+                $this.scene.start($this.returnScene);
                 $this.scene.stop();
             });
             
@@ -56,7 +60,6 @@ class HelpPage extends Phaser.Scene {
         var selector = this.add.container(width/2, height/2).setSize(200*pageButtonCount, 200);
         update();
 
-        console.log(pageCount); console.log(imageCount); console.log(pageButtonCount);
         function update ()
         {
             backButton.setVisible(page>1);
