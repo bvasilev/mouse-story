@@ -151,7 +151,7 @@ class DisplayModel extends Phaser.Scene {
             setTimeout(function () {
                 $this.updating = true;
                 for (var a of $this.actors) {
-                    if (!a.destroyed) {
+                    if (!a.destroyed && a.name!="#") {
                         try {
                             var mactor = model.getByName(a.name)
                             if(!a.name.includes("Mouse") && !a.name.includes("Cat")){
