@@ -107,7 +107,7 @@ class DisplayModel extends Phaser.Scene {
             });
         
         // Button to start playing the level
-        var startButton = this.add.rectangle(400, 50, 200,40,0xff0000);
+        var startButton = this.add.rectangle(400, 50, 200,40,0x8b4513);
         var startText = this.add.text(375, 45, "Start");
         startButton.setInteractive();
         startButton.on("pointerdown", function (ev) {
