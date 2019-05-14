@@ -17,9 +17,9 @@ class WelcomePage extends Phaser.Scene {
             if (y < x) x = y
 
             this.add.image(width / 2, height / 2, 'panel');
-            this.add.text(width / 2, 100, 'The Mouse Story', { fontFamily: 'Arial' }).setFontSize(38).setOrigin(0.5);
+            this.add.text(width / 2, height /6, 'The Mouse Story', { fontFamily: 'Arial' }).setFontSize(38).setOrigin(0.5);
             var mouse = this.add.sprite(width / 2, height / 2, 'mouse').setScale(x, x);
-            this.add.text(width / 2, 600, 'Click the mouse to play the game', { fontFamily: 'Arial' }).setFontSize(28).setOrigin(0.5);
+            this.add.text(width / 2, height - height / 6, 'Click the mouse to play the game', { fontFamily: 'Arial' }).setFontSize(28).setOrigin(0.5);
             mouse.setInteractive()
             mouse.on('pointerdown', function(ev) {
                 //x.text = "restart pressed";
