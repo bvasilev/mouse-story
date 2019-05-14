@@ -18,7 +18,7 @@ class InstructionsPage extends Phaser.Scene {
 
             this.add.image(width / 2, height / 2, 'panel');
             this.add.text(width / 2, height /6, 'Instructions', { fontFamily: 'Arial' }).setFontSize(38).setOrigin(0.5);
-            var mouse = this.add.sprite(width / 5, height / 2, 'mouse').setScale(x, x);
+            var mouse = this.add.sprite(width / 3, height / 2, 'mouse').setScale(x, x);
             this.add.text(width / 2 + 100, height / 2, 'The aim of the game is to get all of the mice\nto eat the cheese and get back to their houses.\nIn each level, you have items in your inventory\nto place on the grid before pressing the Start button.', { fontFamily: 'Arial' }).setFontSize(20).setOrigin(0.5);
             
             var nextButton = this.add.rectangle(0, 0, 80, 40, 0x8b4513);
