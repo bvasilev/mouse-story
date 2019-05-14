@@ -469,38 +469,32 @@ var level6 = {
 };
 
 
+var level7 = {
 
-/*var level7 = { // level with cat
+  "grid": [ "...",
 
-  "grid": [ "....",
+            "...",
 
-            "....",
+            "..."],
 
-            "...."],
-
-  "grid_width": 4,
+  "grid_width": 3,
 
   "grid_height": 3,
-  
+
   "actors": [
 
     {
 
       "type": "Normal Mouse",
 
-      "x": 0, 
+      "x": 2, 
 
-      "y": 0
+      "y": 2,
 
-    },
+      "dies": "N/A",
 
-    {
+      "eats": "Cheese"
 
-      "type": "Cat",
-
-      "x": 2,
-
-      "y": 2
 
     },
 
@@ -508,17 +502,53 @@ var level6 = {
 
       "type": "House",
 
-      "x": 3,
+      "x": 0,
 
-      "y": 3
+      "y": 2,
+
+      "dies": "N/A",
+
+      "eats": "N/A"
+
+
+    },
+
+    {
+
+      "type": "Cheese",
+
+      "x": 2,
+
+      "y": 1,
+
+      "dies": "N/A",
+
+      "eats": "N/A"
+
+
+    },
+
+    {
+
+      "type": "Cheese",
+
+      "x": 2,
+
+      "y": 0,
+
+      "dies": "N/A",
+
+      "eats": "N/A"
+
 
     }
 
   ],
 
-  "items": ["#", "Yarn", "Yarn"]
+  "items": ["#", "#"]
 
-};*/
+};
+
 
 var metadata=
 {
@@ -558,6 +588,6 @@ var levels = {
   level4: level4,
   level5: level5,
   level6: level6,
-  //level7: level7,
+  level7: level7,
   metadata: metadata,
 };
