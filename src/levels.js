@@ -470,7 +470,7 @@ var level6 = {
 
 
 
-var level7 = { // level with cat
+/*var level7 = { // level with cat
 
   "grid": [ "....",
 
@@ -518,7 +518,7 @@ var level7 = { // level with cat
 
   "items": ["#", "Yarn", "Yarn"]
 
-};
+};*/
 
 var metadata=
 {
@@ -558,6 +558,6 @@ var levels = {
   level4: level4,
   level5: level5,
   level6: level6,
-  level7: level7,
+  //level7: level7,
   metadata: metadata,
 };

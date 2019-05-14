@@ -31,26 +31,23 @@ class CompletedLevelMenu extends Phaser.Scene {
                 return('level'+next);
             }
             else{
-                return '0';
+                return '';
             }
         }
 
-        var p1 = this.add.image(button_x, button1_y, button_image).setScale(0.2, 0.05)
-            .setInteractive()
-            .on('pointerdown', function(ev1) {
-                var next = nextLevel();
-                if (next === '0') {
-                    $this.scene.start('levelSelect');
-                    $this.scene.stop();
-                }
-                else {
+        if (nextLevel() !== '') {
+            var p1 = this.add.image(button_x, button1_y, button_image).setScale(0.2, 0.05)
+                .setInteractive()
+                .on('pointerdown', function (ev1) {
+                    var next = nextLevel();
                     model.readLevelFromFile(next);
                     $this.scene.start('displayModel');
                     $this.scene.stop();
-                }
-            });
-        var t1 = this.add.text(button_x, button1_y, "Next level");
-        t1.setOrigin(0.5);
+                });
+
+            var t1 = this.add.text(button_x, button1_y, "Next level");
+            t1.setOrigin(0.5);
+        }
 
         var p2 = this.add.image(button_x, button2_y, button_image).setScale(0.2,0.05)
             .setInteractive()
