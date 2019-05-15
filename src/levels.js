@@ -1,4 +1,4 @@
-var level1 = {
+var level2 = {
 
     "grid": ["...",
 
@@ -49,7 +49,7 @@ var level1 = {
 
 
 
-var level2 = {
+var level1 = {
 
     "grid": ["...",
 
@@ -179,7 +179,7 @@ var level3 = {
 
 
 
-var level4 = { // level with blue mouse
+var level5 = { // level with blue mouse
 
     "grid": ["...#.",
 
@@ -258,7 +258,7 @@ var level4 = { // level with blue mouse
 
 
 
-var level5 = { // level with blue mouse 2
+var level6 = { // level with blue mouse 2
 
     "grid": [".....",
 
@@ -360,7 +360,7 @@ var level5 = { // level with blue mouse 2
 
 
 
-var level6 = {
+var level7 = {
 
     "grid": [".....",
 
@@ -475,7 +475,7 @@ var level6 = {
 };
 
 
-var level7 = {
+var level4 = {
 
     "grid": ["...",
 
@@ -755,14 +755,14 @@ var level10 = {
 
     "grid": [".....",
 
-             "...#.",
+        "...#.",
 
-             "..#..",
+        "..#..",
 
-             ".#...",
+        ".#...",
 
-             "....."
-             ],
+        "....."
+    ],
 
     "grid_width": 5,
 
@@ -784,7 +784,7 @@ var level10 = {
 
 
         },
-        
+
         {
 
             "type": "Blue Mouse",
@@ -814,7 +814,7 @@ var level10 = {
 
 
         },
-        
+
         {
 
             "type": "Blue House",
@@ -865,6 +865,166 @@ var level10 = {
 
 };
 
+var level11 = {
+
+    "grid": ["........",
+
+        "........",
+
+        ".#......",
+
+        "........",
+
+        "........",
+
+        "........"
+    ],
+
+    "grid_width": 8,
+
+    "grid_height": 6,
+
+    "actors": [
+
+        {
+
+            "type": "Normal Mouse",
+
+            "x": 1,
+
+            "y": 2,
+
+            "dies": "N/A",
+
+            "eats": "Cheese"
+
+
+        },
+
+        {
+
+            "type": "Blue Mouse",
+
+            "x": 0,
+
+            "y": 6,
+
+            "dies": "N/A",
+
+            "eats": "Blue Cheese"
+
+
+        },
+
+        {
+
+            "type": "House",
+
+            "x": 5,
+
+            "y": 7,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+
+        {
+
+            "type": "Blue House",
+
+            "x": 4,
+
+            "y": 1,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+
+        {
+
+            "type": "Blue Cheese",
+
+            "x": 2,
+
+            "y": 6,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+        {
+
+            "type": "Blue Cheese",
+
+            "x": 4,
+
+            "y": 3,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+
+        {
+
+            "type": "Cheese",
+
+            "x": 1,
+
+            "y": 0,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+        {
+
+            "type": "Cheese",
+
+            "x": 4,
+
+            "y": 2,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+
+        {
+
+            "type": "Cheese",
+
+            "x": 5,
+
+            "y": 6,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+
+    ],
+
+    "items": ["#", "#", "#", "#"]
+
+};
+
 var metadata = {
 
     "actorTypes": {
@@ -906,5 +1066,6 @@ var levels = {
     level8: level8,
     level9: level9,
     level10: level10,
+    level11: level11,
     metadata: metadata,
 };
