@@ -1025,6 +1025,247 @@ var level11 = {
 
 };
 
+var level12 = {
+
+    "grid": ["...#......",
+
+        "...#.#..##",
+
+        "...#.#....",
+
+        "...#......",
+
+        "...#..##..",
+
+        "...##.....",
+
+        "..........",
+
+        ".#######..",
+
+        ".......#..",
+
+        ".......#.."
+    ],
+
+    "grid_width": 10,
+
+    "grid_height": 10,
+
+    "actors": [
+
+        {
+
+            "type": "Normal Mouse",
+
+            "x": 0,
+
+            "y": 2,
+
+            "dies": "N/A",
+
+            "eats": "Cheese"
+
+
+        },
+
+        {
+
+            "type": "Blue Mouse",
+
+            "x": 0,
+
+            "y": 9,
+
+            "dies": "N/A",
+
+            "eats": "Blue Cheese"
+
+
+        },
+
+        {
+
+            "type": "House",
+
+            "x": 4,
+
+            "y": 5,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+
+        {
+
+            "type": "Blue House",
+
+            "x": 8,
+
+            "y": 3,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+
+        {
+
+            "type": "Blue Cheese",
+
+            "x": 5,
+
+            "y": 1,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+        {
+
+            "type": "Blue Cheese",
+
+            "x": 9,
+
+            "y": 3,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+
+        {
+
+            "type": "Blue Cheese",
+
+            "x": 0,
+
+            "y": 6,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+        {
+
+            "type": "Blue Cheese",
+
+            "x": 5,
+
+            "y": 9,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+
+        {
+
+            "type": "Cheese",
+
+            "x": 0,
+
+            "y": 5,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+        {
+
+            "type": "Cheese",
+
+            "x": 2,
+
+            "y": 6,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+
+        {
+
+            "type": "Cheese",
+
+            "x": 3,
+
+            "y": 7,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+
+        {
+
+            "type": "Cheese",
+
+            "x": 4,
+
+            "y": 9,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+        {
+
+            "type": "Cheese",
+
+            "x": 4,
+
+            "y": 4,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+
+        {
+
+            "type": "Cheese",
+
+            "x": 5,
+
+            "y": 6,
+
+            "dies": "N/A",
+
+            "eats": "N/A"
+
+
+        },
+
+    ],
+
+    "items": ["#", "#", "#", "#", "#", "#"]
+
+};
+
 var metadata = {
 
     "actorTypes": {
@@ -1067,5 +1308,6 @@ var levels = {
     level9: level9,
     level10: level10,
     level11: level11,
+    level12: level12,
     metadata: metadata,
 };
